@@ -28,7 +28,9 @@ class DataCollector extends BaseController
             $this->verifyHeaders($data, ['klient', 'Adres', 'Kod_miasto', 'Imię i nazwisko', 'Godziny', 'Telefon', 'Uwagi', 'Ilość', 'region']);
             $this->trimData($data);
             $this->addKeys($data);
+            $this->standardizeData($data);
             $this->combineSameAddresses($data);
+            $this->spiltAddressLines($data);
         } catch (Exception $e) {
             $this->errorResponse($e->getMessage(), $e->getMessage());
         }
@@ -113,6 +115,22 @@ class DataCollector extends BaseController
     }
 
     /**
+     * Standardize every field of incoming data
+     * @param array $data
+     */
+    private function standardizeData(array &$data)
+    {
+        foreach ($data as &$orderData){
+            $orderData['type'] = trim($orderData['type']);
+            $orderData['address'] = mb_convert_case(trim($orderData['address']), MB_CASE_TITLE);
+            $orderData['city'] = mb_convert_case(trim($orderData['city']), MB_CASE_TITLE);
+            $orderData['hours'] = (is_null($orderData['hours'])) ? '-' : trim($orderData['hours']);
+            $orderData['client'] = mb_convert_case(trim($orderData['client']), MB_CASE_TITLE);
+            $orderData['comment'] = trim($orderData['comment']);
+        }
+    }
+
+    /**
      * Combine similar data into one object
      * @param array $data
      */
@@ -135,5 +153,13 @@ class DataCollector extends BaseController
         $data = array_values($data);
     }
 
-
+    private function spiltAddressLines(array &$data)
+    {
+        foreach ($data as &$orderData){
+            preg_match('/^([a-ząćęłńóśżź.\s]+)\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+            $orderData['street'] = $split[1] ?? '';
+            $orderData['street_number'] = $split[2] ?? '';
+            $orderData['flat_number'] = $split[3] ?? '';
+        }
+    }
 }
