@@ -31,9 +31,14 @@ class DataCollector extends BaseController
             $this->standardizeData($data);
             $this->combineSameAddresses($data);
             $this->spiltAddressLines($data);
+            $this->createHashes($data);
         } catch (Exception $e) {
             $this->errorResponse($e->getMessage(), $e->getMessage());
         }
+
+        $f = fopen(__DIR__ . '/../../../storage/spreadsheets/' . $filename . '.json', 'w');
+        fwrite($f, json_encode($data));
+        fclose($f);
 
         return $this->successResponse($data);
     }
@@ -105,11 +110,15 @@ class DataCollector extends BaseController
                 'type' => $orderData[0],
                 'address' => $orderData[1],
                 'city' => $orderData[2],
+                'street' => null,
+                'street_number' => null,
+                'flat_number' => null,
                 'client' => $orderData[3],
                 'hours' => $orderData[4],
                 'phone' => $orderData[5],
                 'comment' => $orderData[6],
-                'amount' => $orderData[7]
+                'amount' => $orderData[7],
+                'hash' => null
             ];
         }
     }
@@ -120,11 +129,11 @@ class DataCollector extends BaseController
      */
     private function standardizeData(array &$data)
     {
-        foreach ($data as &$orderData){
+        foreach ($data as &$orderData) {
             $orderData['type'] = trim($orderData['type']);
             $orderData['address'] = mb_convert_case(trim($orderData['address']), MB_CASE_TITLE);
             $orderData['city'] = mb_convert_case(trim($orderData['city']), MB_CASE_TITLE);
-            $orderData['hours'] = (is_null($orderData['hours'])) ? '-' : trim($orderData['hours']);
+            $orderData['hours'] = $orderData['hours'] ?? null;
             $orderData['client'] = mb_convert_case(trim($orderData['client']), MB_CASE_TITLE);
             $orderData['comment'] = trim($orderData['comment']);
         }
@@ -153,13 +162,36 @@ class DataCollector extends BaseController
         $data = array_values($data);
     }
 
+
+    /**
+     * Split address into street, st. number and flat number
+     * @param array $data
+     */
     private function spiltAddressLines(array &$data)
     {
-        foreach ($data as &$orderData){
-            preg_match('/^([a-ząćęłńóśżź.\s]+)\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
-            $orderData['street'] = $split[1] ?? '';
-            $orderData['street_number'] = $split[2] ?? '';
-            $orderData['flat_number'] = $split[3] ?? '';
+        foreach ($data as &$orderData) {
+            preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+            $orderData['street'] = $split[1] ?? null;
+            $orderData['street_number'] = $split[2] ?? null;
+            $orderData['flat_number'] = $split[3] ?? null;
+        }
+    }
+
+    /**
+     * Create hash to easily compare addresses
+     * Hashes are created from type and address(city, street, number and flat)
+     * @param array $data
+     */
+    private function createHashes(array &$data)
+    {
+        foreach ($data as &$orderData) {
+            $orderData['hash'] = md5(
+                $orderData['type'] . '#'
+                . $orderData['city'] . '#'
+                . $orderData['street'] . '#'
+                . $orderData['street_number'] . '#'
+                . $orderData['flat_number']
+            );
         }
     }
 }

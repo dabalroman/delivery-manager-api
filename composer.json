@@ -9,7 +9,8 @@
         "dusterio/lumen-passport": "0.2.19",
         "guzzlehttp/guzzle": "6.5.3",
         "laravel/lumen-framework": "^7.0",
-        "phpoffice/phpspreadsheet": "1.12.0"
+        "phpoffice/phpspreadsheet": "1.12.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9.1",
