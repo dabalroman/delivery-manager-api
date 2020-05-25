@@ -82,6 +82,7 @@ class GoodspeedXmlAdapter extends DataAdapter
                 'street' => null,
                 'street_number' => null,
                 'flat_number' => null,
+                'floor' => null,
                 'client' => $orderData[3],
                 'hours' => $orderData[4],
                 'phone' => $orderData[5],
