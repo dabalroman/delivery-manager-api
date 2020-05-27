@@ -22,7 +22,7 @@ class CreateOrderTable extends Migration
             $table->timestamps();
 
             $table->foreign('address_id')->references('id')->on('address');
-            $table->foreign('batch_id')->references('id')->on('batch');
+            $table->foreign('batch_id')->references('id')->on('import_batch');
         });
     }
 
