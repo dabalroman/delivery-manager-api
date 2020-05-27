@@ -23,8 +23,9 @@ class CreateAddressTable extends Migration
             $table->string('client_name', 64);
             $table->string('delivery_hours', 32);
             $table->string('phone', 16);
-            $table->boolean('has_key')->default(false);
+            $table->string('code', 32)->default(null);
             $table->string('comment', 256);
+            $table->string('geo_cord', 64)->default(null);
             $table->char('id_hash', 32);
             $table->timestamps();
         });
