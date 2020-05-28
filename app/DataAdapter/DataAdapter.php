@@ -3,10 +3,11 @@
 
 namespace App\DataAdapter;
 
-
+use App\Address;
+use App\Http\Controllers\Controller;
 use Exception;
 
-abstract class DataAdapter
+abstract class DataAdapter extends Controller
 {
     protected $filename;
 
@@ -30,6 +31,7 @@ abstract class DataAdapter
         $this->combineSameAddresses($data);
         $this->spiltAddressLines($data);
         $this->createHashes($data);
+        $this->pushDataToDb($data);
         $this->saveData($this->filename, $data);
         return $data;
     }
@@ -85,4 +87,60 @@ abstract class DataAdapter
      * @param $data
      */
     abstract protected function saveData($filename, &$data);
+
+    private function pushDataToDb(array &$data)
+    {
+        $this->pushAddressToDb($data);
+        $this->pushBatchToDb($data);
+        $this->pushOrderToDb($data);
+    }
+
+    private function pushAddressToDb(array &$data)
+    {
+        $loaded = 0;
+        $new = 0;
+
+        try {
+            foreach ($data as &$orderData) {
+                //Look for address hash
+                $addressFromDB = (new Address)->where('id_hash', $orderData['address_hash'])->first();
+
+                if (is_null($addressFromDB)) {
+                    //Address don't exist, push
+                    $address = new Address;
+
+                    $address->city = $orderData['city'];
+                    $address->street = $orderData['street'];
+                    $address->street_number = $orderData['street_number'];
+                    $address->flat_number = $orderData['flat_number'];
+                    $address->floor = $orderData['floor'];
+                    $address->client_name = $orderData['client_name'];
+                    $address->delivery_hours = $orderData['delivery_hours'];
+                    $address->phone = $orderData['phone'];
+                    $address->code = $orderData['code'];
+                    $address->comment = $orderData['comment'];
+                    $address->id_hash = $orderData['address_hash'];
+                    $address->save();
+
+                    $orderData['address_id'] = $address->id;
+                    $new++;
+                } else {
+                    $orderData['address_id'] = $addressFromDB->id;
+                    $loaded++;
+                }
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+        echo "$loaded / $new\n";
+    }
+
+    private function pushBatchToDb(array &$data)
+    {
+    }
+
+    private function pushOrderToDb(array &$data)
+    {
+    }
 }

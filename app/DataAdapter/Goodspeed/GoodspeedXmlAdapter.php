@@ -83,12 +83,14 @@ class GoodspeedXmlAdapter extends DataAdapter
                 'street_number' => null,
                 'flat_number' => null,
                 'floor' => null,
-                'client' => $orderData[3],
-                'hours' => $orderData[4],
+                'client_name' => $orderData[3],
+                'delivery_hours' => $orderData[4],
                 'phone' => $orderData[5],
                 'comment' => $orderData[6],
                 'amount' => $orderData[7],
-                'hash' => null
+                'code' => null,
+                'address_hash' => null,
+                'address_id' => null
             ];
         }
     }
@@ -102,8 +104,8 @@ class GoodspeedXmlAdapter extends DataAdapter
             $orderData['type'] = trim($orderData['type']);
             $orderData['address'] = mb_convert_case(trim($orderData['address']), MB_CASE_TITLE);
             $orderData['city'] = mb_convert_case(trim($orderData['city']), MB_CASE_TITLE);
-            $orderData['hours'] = $orderData['hours'] ?? null;
-            $orderData['client'] = mb_convert_case(trim($orderData['client']), MB_CASE_TITLE);
+            $orderData['delivery_hours'] = $orderData['delivery_hours'] ?? null;
+            $orderData['client_name'] = mb_convert_case(trim($orderData['client_name']), MB_CASE_TITLE);
             $orderData['comment'] = trim($orderData['comment']);
         }
     }
@@ -119,7 +121,7 @@ class GoodspeedXmlAdapter extends DataAdapter
             if ($data[$i]['type'] == $data[$i - 1]['type']
                 && $data[$i]['address'] == $data[$i - 1]['address']
                 && $data[$i]['city'] == $data[$i - 1]['city']
-                && ($data[$i]['client'] == $data[$i - 1]['client'] || $data[$i]['phone'] == $data[$i - 1]['phone'])
+                && ($data[$i]['client_name'] == $data[$i - 1]['client_name'] || $data[$i]['phone'] == $data[$i - 1]['phone'])
             ) {
                 $data[$i]['amount'] += $data[$i - 1]['amount'];
                 unset($data[$i - 1]);
@@ -136,7 +138,18 @@ class GoodspeedXmlAdapter extends DataAdapter
     protected function spiltAddressLines(&$data)
     {
         foreach ($data as &$orderData) {
+            //Match address like Aleja bielska 141/10
             preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+
+            if (!count($split)) {
+                //Match address like Nowa 69 M10
+                preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\sM([\w\d]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+            }
+
+            if (isset($split[3]) && $split[3] == '-') {
+                $split[3] = null;
+            }
+
             $orderData['street'] = $split[1] ?? null;
             $orderData['street_number'] = $split[2] ?? null;
             $orderData['flat_number'] = $split[3] ?? null;
@@ -149,9 +162,8 @@ class GoodspeedXmlAdapter extends DataAdapter
     protected function createHashes(&$data)
     {
         foreach ($data as &$orderData) {
-            $orderData['hash'] = md5(
-                $orderData['type'] . '#'
-                . $orderData['city'] . '#'
+            $orderData['address_hash'] = md5(
+                $orderData['city'] . '#'
                 . $orderData['street'] . '#'
                 . $orderData['street_number'] . '#'
                 . $orderData['flat_number']
