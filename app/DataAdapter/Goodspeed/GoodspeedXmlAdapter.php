@@ -135,7 +135,13 @@ class GoodspeedXmlAdapter extends DataAdapter
     /**
      * @inheritDoc
      */
-    protected function spiltAddressLines(&$data)
+    protected function organizeData(&$data)
+    {
+        $this->spiltAddress($data);
+        $this->findKey($data);
+    }
+
+    protected function spiltAddress(&$data)
     {
         foreach ($data as &$orderData) {
             //Match address like Aleja bielska 141/10
@@ -153,6 +159,14 @@ class GoodspeedXmlAdapter extends DataAdapter
             $orderData['street'] = $split[1] ?? null;
             $orderData['street_number'] = $split[2] ?? null;
             $orderData['flat_number'] = $split[3] ?? null;
+        }
+    }
+
+    protected function findKey(&$data)
+    {
+        foreach ($data as &$orderData) {
+            preg_match('/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz(?:yk)?)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i', $orderData['comment'], $split, PREG_UNMATCHED_AS_NULL);
+            $orderData['code'] = $split[0] ?? null;
         }
     }
 

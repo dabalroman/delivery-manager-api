@@ -29,7 +29,7 @@ abstract class DataAdapter extends Controller
         $this->addKeys($data);
         $this->standardizeData($data);
         $this->combineSameAddresses($data);
-        $this->spiltAddressLines($data);
+        $this->organizeData($data);
         $this->createHashes($data);
         $this->pushDataToDb($data);
         $this->saveData($this->filename, $data);
@@ -72,7 +72,7 @@ abstract class DataAdapter extends Controller
      * Split address into street, st. number and flat number
      * @param array $data
      */
-    abstract protected function spiltAddressLines(&$data);
+    abstract protected function organizeData(&$data);
 
     /**
      * Create hash to easily compare addresses
