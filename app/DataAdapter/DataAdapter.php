@@ -6,6 +6,7 @@ namespace App\DataAdapter;
 use App\Address;
 use App\Batch;
 use App\Http\Controllers\Controller;
+use App\Order;
 use Carbon\Carbon;
 use Exception;
 
@@ -15,6 +16,7 @@ abstract class DataAdapter extends Controller
     protected $newAddresses = 0;
     protected $knownAddresses = 0;
     protected $loadedOrdersAmount = 0;
+    protected $batchId = null;
 
     public function __construct($filename)
     {
@@ -150,6 +152,8 @@ abstract class DataAdapter extends Controller
             $batch->orders_amount = $this->loadedOrdersAmount;
 
             $batch->save();
+
+            $this->batchId = $batch->id;
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -164,6 +168,22 @@ abstract class DataAdapter extends Controller
 
     private function pushOrdersToDb(array &$data)
     {
+        try {
+            foreach ($data as &$orderData) {
+                $order = new Order;
 
+                $order->type = $orderData['type'];
+                $order->amount = $orderData['amount'];
+                $order->address_id = $orderData['address_id'];
+                $order->batch_id = $this->batchId;
+
+                $order->owner = 0;
+                $order->assigned_to = null;
+
+                $order->save();
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 }

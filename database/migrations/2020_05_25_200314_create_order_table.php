@@ -19,10 +19,15 @@ class CreateOrderTable extends Migration
             $table->tinyInteger('amount', false, true)->nullable(false);
             $table->foreignId('address_id');
             $table->foreignId('batch_id');
+            $table->foreignId('owner');
+            $table->foreignId('assigned_to')->nullable(true);
             $table->timestamps();
 
             $table->foreign('address_id')->references('id')->on('address');
             $table->foreign('batch_id')->references('id')->on('import_batch');
+
+//            $table->foreign('owner')->references('id')->on('user');
+//            $table->foreign('assigned_to')->references('id')->on('courier');
         });
     }
 
