@@ -152,7 +152,7 @@ class GoodspeedXmlAdapter extends DataAdapter
                 preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\sM([\w\d]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
             }
 
-            if (isset($split[3]) && $split[3] == '-') {
+            if (isset($split[3]) && ($split[3] == '-' || $split[3] == '')) {
                 $split[3] = null;
             }
 
