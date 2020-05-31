@@ -7,6 +7,7 @@ namespace App\DataAdapter\Goodspeed;
 use App\DataAdapter\SpreadsheetDataAdapter;
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use Illuminate\Http\Response;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -25,9 +26,10 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
             $data = $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
 
             //Get day and month date from format 'NameSurname DD.MM'
+            $timezone = new DateTimeZone('Europe/Warsaw');
             $rawDeliveryDate = substr($spreadsheet->getSheetNames()[0], -5, 5) . '.' . date('Y');
-            $this->deliveryDate = DateTime::createFromFormat('d.m.Y', $rawDeliveryDate);
-            $now = new DateTime('now');
+            $this->deliveryDate = DateTime::createFromFormat('d.m.Y', trim($rawDeliveryDate), $timezone);
+            $now = new DateTime('now', $timezone);
 
             //New year overflow
             if ($this->deliveryDate->format('d.m') == '01.01' && $now->format('d.m') == '31.12') {
@@ -142,11 +144,11 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     {
         foreach ($data as &$orderData) {
             //Match address like Aleja bielska 141/10
-            preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+            preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
 
             if (!count($split)) {
                 //Match address like Nowa 69 M10
-                preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+)\s(\S+)\sM([\w\d]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+                preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\sM([\w\d]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
             }
 
             if (isset($split[3]) && ($split[3] == '-' || $split[3] == '')) {
