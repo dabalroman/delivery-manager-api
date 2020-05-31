@@ -31,6 +31,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Batch whereKnownAddressesAmount($value)
  * @method static Builder|Batch whereNewAddressesAmount($value)
  * @property int $orders_amount
+ * @property string $delivery_date
+ * @method static Builder|Batch whereDeliveryDate($value)
  */
 class Batch extends Model
 {
@@ -39,10 +41,11 @@ class Batch extends Model
 
     protected $fillable = [
         'source',
-        'import_date',
+        'delivery_date',
         'new_addresses_amount',
         'known_addresses_amount',
-        'orders_amount'
+        'orders_amount',
+        'import_date'
     ];
 
     protected $hidden = [];

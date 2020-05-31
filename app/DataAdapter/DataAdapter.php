@@ -13,6 +13,7 @@ use Exception;
 abstract class DataAdapter extends Controller
 {
     protected $filename;
+    protected $deliveryDate = null;
     protected $newAddresses = 0;
     protected $knownAddresses = 0;
     protected $loadedOrdersAmount = 0;
@@ -146,10 +147,11 @@ abstract class DataAdapter extends Controller
             $batch = new Batch;
 
             $batch->source = $this->filename;
-            $batch->import_date = Carbon::now();
+            $batch->delivery_date = $this->deliveryDate;
             $batch->new_addresses_amount = $this->newAddresses;
             $batch->known_addresses_amount = $this->knownAddresses;
             $batch->orders_amount = $this->loadedOrdersAmount;
+            $batch->import_date = Carbon::now();
 
             $batch->save();
 

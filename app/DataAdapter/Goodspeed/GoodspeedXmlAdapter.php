@@ -5,6 +5,8 @@ namespace App\DataAdapter\Goodspeed;
 
 
 use App\DataAdapter\DataAdapter;
+use DateInterval;
+use DateTime;
 use Exception;
 use Illuminate\Http\Response;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -37,6 +39,17 @@ class GoodspeedXmlAdapter extends DataAdapter
         try {
             $spreadsheet = IOFactory::load($path);
             $data = $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
+
+            //Get day and month date from format 'NameSurname DD.MM'
+            $rawDeliveryDate = substr($spreadsheet->getSheetNames()[0], -5, 5) . '.' . date('Y');
+            $this->deliveryDate = DateTime::createFromFormat('d.m.Y', $rawDeliveryDate);
+            $now = new DateTime('now');
+
+            //New year overflow
+            if ($this->deliveryDate->format('d.m') == '01.01' && $now->format('d.m') == '31.12') {
+                $this->deliveryDate->add(new DateInterval('P1Y'));
+            }
+
         } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
