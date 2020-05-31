@@ -4,12 +4,17 @@
 namespace App\DataAdapter;
 
 use App\Address;
+use App\Batch;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Exception;
 
 abstract class DataAdapter extends Controller
 {
     protected $filename;
+    protected $newAddresses = 0;
+    protected $knownAddresses = 0;
+    protected $loadedOrdersAmount = 0;
 
     public function __construct($filename)
     {
@@ -92,14 +97,11 @@ abstract class DataAdapter extends Controller
     {
         $this->pushAddressToDb($data);
         $this->pushBatchToDb($data);
-        $this->pushOrderToDb($data);
+        $this->pushOrdersToDb($data);
     }
 
     private function pushAddressToDb(array &$data)
     {
-        $loaded = 0;
-        $new = 0;
-
         try {
             foreach ($data as &$orderData) {
                 //Look for address hash
@@ -123,24 +125,45 @@ abstract class DataAdapter extends Controller
                     $address->save();
 
                     $orderData['address_id'] = $address->id;
-                    $new++;
+                    $this->newAddresses++;
                 } else {
                     $orderData['address_id'] = $addressFromDB->id;
-                    $loaded++;
+                    $this->knownAddresses++;
                 }
             }
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-
-        echo "$loaded / $new\n";
     }
 
     private function pushBatchToDb(array &$data)
     {
+        $this->countOrdersAmount($data);
+
+        try {
+            $batch = new Batch;
+
+            $batch->source = $this->filename;
+            $batch->import_date = Carbon::now();
+            $batch->new_addresses_amount = $this->newAddresses;
+            $batch->known_addresses_amount = $this->knownAddresses;
+            $batch->orders_amount = $this->loadedOrdersAmount;
+
+            $batch->save();
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 
-    private function pushOrderToDb(array &$data)
+    private function countOrdersAmount(array &$data)
     {
+        foreach ($data as &$orderData) {
+            $this->loadedOrdersAmount += $orderData['amount'];
+        }
+    }
+
+    private function pushOrdersToDb(array &$data)
+    {
+
     }
 }

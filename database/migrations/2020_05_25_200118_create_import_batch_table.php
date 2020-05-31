@@ -17,9 +17,9 @@ class CreateImportBatchTable extends Migration
             $table->id();
             $table->string('source', 64)->nullable(false);
             $table->dateTime('import_date')->nullable(false);
-            $table->smallInteger('address_amount');
+            $table->smallInteger('new_addresses_amount');
+            $table->smallInteger('known_addresses_amount');
             $table->smallInteger('orders_amount');
-            $table->timestamps();
         });
     }
 
