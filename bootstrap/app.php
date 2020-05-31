@@ -1,6 +1,7 @@
 <?php
 
 use Dusterio\LumenPassport\Lumen7Application;
+use Dusterio\LumenPassport\PassportServiceProvider;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -28,6 +29,12 @@ $app = new Lumen7Application(
 $app->withFacades();
 
 $app->withEloquent();
+
+/*
+ * Registering config files
+ */
+
+$app->configure('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -93,9 +100,10 @@ $app->configure('app');
 |
 */
 
- $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
+$app->register(Laravel\Passport\PassportServiceProvider::class);
+$app->register(PassportServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
