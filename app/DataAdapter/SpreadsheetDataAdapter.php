@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Order;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Response;
 
-abstract class DataAdapter extends Controller
+abstract class SpreadsheetDataAdapter extends Controller
 {
     protected $filename;
+    protected $path = null;
     protected $deliveryDate = null;
     protected $newAddresses = 0;
     protected $knownAddresses = 0;
@@ -31,8 +33,16 @@ abstract class DataAdapter extends Controller
      */
     public function retrieveData()
     {
+        if (!$this->doesFileExists($this->filename)) {
+            throw new Exception('File don\'t exists.');
+        }
+
+        if ($this->isAlreadyImported($this->filename)) {
+            throw new Exception('File already imported.');
+        }
+
         $data = [];
-        $this->loadData($this->filename, $data);
+        $this->loadData($this->path, $data);
         $this->trimData($data);
         $this->addKeys($data);
         $this->standardizeData($data);
@@ -187,5 +197,43 @@ abstract class DataAdapter extends Controller
         } catch (Exception $e) {
             echo $e->getMessage();
         }
+    }
+
+    /**
+     * Verify filename and it's existence
+     * @param $filename
+     * @return bool
+     * @throws Exception
+     */
+    private function doesFileExists($filename)
+    {
+        //Check file name
+        if (!preg_match('/^[A-z0-9]+$/', $filename)) {
+            throw new Exception('Wrong filename', Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        $path = __DIR__ . '/../../storage/spreadsheets/' . $filename;
+
+        //Check if file exists
+        if (file_exists($path . '.xls')) {
+            $path .= '.xls';
+        } else if (file_exists($path . '.xlsx')) {
+            $path .= '.xlsx';
+        } else {
+            return false;
+        }
+
+        $this->path = $path;
+        return true;
+    }
+
+    /**
+     * Check db for batches that might have imported that file
+     * @param $filename
+     * @return bool
+     */
+    private function isAlreadyImported($filename)
+    {
+        return !is_null((new Batch)->firstWhere('source', '=', $filename));
     }
 }

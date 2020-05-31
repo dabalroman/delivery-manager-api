@@ -4,38 +4,22 @@
 namespace App\DataAdapter\Goodspeed;
 
 
-use App\DataAdapter\DataAdapter;
+use App\DataAdapter\SpreadsheetDataAdapter;
 use DateInterval;
 use DateTime;
 use Exception;
 use Illuminate\Http\Response;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-class GoodspeedXmlAdapter extends DataAdapter
+class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
 {
     private $headers = ['klient', 'Adres', 'Kod_miasto', 'Imię i nazwisko', 'Godziny', 'Telefon', 'Uwagi', 'Ilość', 'region'];
 
     /**
      * @inheritDoc
      */
-    protected function loadData($filename, &$data)
+    protected function loadData($path, &$data)
     {
-        //Check file name
-        if (!preg_match('/^[A-z0-9]+$/', $filename)) {
-            throw new \PhpOffice\PhpSpreadsheet\Reader\Exception('Wrong filename', Response::HTTP_NOT_ACCEPTABLE);
-        }
-
-        $path = __DIR__ . '/../../../storage/spreadsheets/' . $filename;
-
-        //Check if file exists
-        if (file_exists($path . '.xls')) {
-            $path .= '.xls';
-        } else if (file_exists($path . '.xlsx')) {
-            $path .= '.xlsx';
-        } else {
-            throw new Exception('File not found', Response::HTTP_NOT_FOUND);
-        }
-
         try {
             $spreadsheet = IOFactory::load($path);
             $data = $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
