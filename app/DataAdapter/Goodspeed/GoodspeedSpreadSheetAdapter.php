@@ -107,6 +107,8 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
             $orderData['client_name'] = mb_convert_case(trim($orderData['client_name']), MB_CASE_TITLE);
             $orderData['comment'] = trim($orderData['comment']);
         }
+
+        $this->spiltAddress($data);
     }
 
     /**
@@ -117,10 +119,10 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
         //Data is ordered alphabetically by address (street + number)
         $initCount = count($data);
         for ($i = 1; $i < $initCount; $i++) {
-            if ($data[$i]['type'] == $data[$i - 1]['type']
-                && $data[$i]['address'] == $data[$i - 1]['address']
+            if ($data[$i]['street'] == $data[$i - 1]['street']
+                && $data[$i]['street_number'] == $data[$i - 1]['street_number']
+                && $data[$i]['flat_number'] == $data[$i - 1]['flat_number']
                 && $data[$i]['city'] == $data[$i - 1]['city']
-                && ($data[$i]['client_name'] == $data[$i - 1]['client_name'] || $data[$i]['phone'] == $data[$i - 1]['phone'])
             ) {
                 $data[$i]['amount'] += $data[$i - 1]['amount'];
                 unset($data[$i - 1]);
@@ -136,7 +138,6 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
      */
     protected function organizeData(&$data)
     {
-        $this->spiltAddress($data);
         $this->findKey($data);
     }
 
