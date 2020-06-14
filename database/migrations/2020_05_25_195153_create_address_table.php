@@ -24,7 +24,7 @@ class CreateAddressTable extends Migration
             $table->string('delivery_hours', 32)->nullable()->default(null);
             $table->string('phone', 32)->nullable()->default(null);
             $table->string('code', 32)->nullable()->default(null);
-            $table->string('comment', 256)->nullable()->default(null);
+            $table->string('comment', 512)->nullable()->default(null);
             $table->string('geo_cord', 64)->nullable()->default(null);
             $table->char('id_hash', 32);
             $table->timestamps();

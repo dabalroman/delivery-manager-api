@@ -25,6 +25,7 @@ class BatchController extends BaseController
         $data['delivery_date'] = $batch->delivery_date;
         $data['new_addresses_amount'] = $batch->new_addresses_amount;
         $data['known_addresses_amount'] = $batch->known_addresses_amount;
+        $data['orders_amount'] = $batch->orders_amount;
 
         $data['orders'] = DB::table('order')
             ->select('order.id', 'order.type', 'order.amount', 'address.city', 'address.street', 'address.street_number', 'address.flat_number', 'address.comment', 'address.code')
