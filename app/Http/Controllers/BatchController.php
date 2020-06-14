@@ -30,6 +30,7 @@ class BatchController extends BaseController
             ->select('order.id', 'order.type', 'order.amount', 'address.city', 'address.street', 'address.street_number', 'address.flat_number')
             ->join('address', 'order.address_id', '=', 'address.id')
             ->where('order.batch_id', '=', $batchID)
+            ->orderBy('address.street')
             ->get();
 
         return $this->successResponse($data, Response::HTTP_OK);
