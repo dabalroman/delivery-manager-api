@@ -189,7 +189,7 @@ abstract class SpreadsheetDataAdapter extends Controller
                 $order->address_id = $orderData['address_id'];
                 $order->batch_id = $this->batchId;
 
-                $order->owner = 0;
+                $order->owner = 1;
                 $order->assigned_to = null;
 
                 $order->save();
