@@ -165,7 +165,8 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     protected function findKey(&$data)
     {
         foreach ($data as &$orderData) {
-            preg_match('/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz(?:yk)?)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i', $orderData['comment'], $split, PREG_UNMATCHED_AS_NULL);
+            $orderData['comment'] = str_replace('kluczyk', 'klucz', $orderData['comment']);
+            preg_match('/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i', $orderData['comment'], $split, PREG_UNMATCHED_AS_NULL);
             $orderData['code'] = $split[0] ?? null;
         }
     }

@@ -27,7 +27,7 @@ class BatchController extends BaseController
         $data['known_addresses_amount'] = $batch->known_addresses_amount;
 
         $data['orders'] = DB::table('order')
-            ->select('order.id', 'order.type', 'order.amount', 'address.city', 'address.street', 'address.street_number', 'address.flat_number')
+            ->select('order.id', 'order.type', 'order.amount', 'address.city', 'address.street', 'address.street_number', 'address.flat_number', 'address.comment', 'address.code')
             ->join('address', 'order.address_id', '=', 'address.id')
             ->where('order.batch_id', '=', $batchID)
             ->orderBy('address.street')
