@@ -18,6 +18,12 @@ class CreateRouteTable extends Migration
             $table->string('addresses_ids')->nullable(false);
             $table->char('id_hash', 32);
             $table->char('routed_hash', 32);
+            $table->foreignId('courier_id');
+            $table->foreignId('batch_id')->nullable(false);
+            $table->timestamps();
+
+            $table->foreign('courier_id')->references('id')->on('courier');
+            $table->foreign('batch_id')->references('id')->on('import_batch');
         });
     }
 

@@ -157,6 +157,7 @@ abstract class SpreadsheetDataAdapter extends Controller
             $batch = new Batch;
 
             $batch->source = $this->filename;
+            $batch->user_id = 1; //TODO: CHANGE TO CURRENT USER
             $batch->delivery_date = $this->deliveryDate;
             $batch->new_addresses_amount = $this->newAddresses;
             $batch->known_addresses_amount = $this->knownAddresses;

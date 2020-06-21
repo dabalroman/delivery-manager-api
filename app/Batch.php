@@ -33,6 +33,8 @@ use Illuminate\Support\Carbon;
  * @property int $orders_amount
  * @property string $delivery_date
  * @method static Builder|Batch whereDeliveryDate($value)
+ * @property int $user_id
+ * @method static Builder|Batch whereUserId($value)
  */
 class Batch extends Model
 {
@@ -40,6 +42,7 @@ class Batch extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'user_id',
         'source',
         'delivery_date',
         'new_addresses_amount',

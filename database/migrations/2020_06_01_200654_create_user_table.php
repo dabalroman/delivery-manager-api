@@ -21,8 +21,12 @@ class CreateUserTable extends Migration
             $table->timestamps();
         });
 
+        Schema::table('import_batch', function (Blueprint $table) {
+            $table->foreign('user_id')->references('id')->on('user');
+        });
+
         DB::table('user')->insert(
-            ['name' => 'Roman', 'email' => 'dabalroman@gmail.com']
+            ['name' => 'dev', 'email' => 'dabalroman@gmail.com']
         );
     }
 
