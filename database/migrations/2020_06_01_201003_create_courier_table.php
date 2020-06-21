@@ -1,5 +1,6 @@
 <?php
 
+use App\Courier;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +22,11 @@ class CreateCourierTable extends Migration
 
             $table->foreign('user_id')->references('id')->on('user');
         });
+
+        $courier = new Courier();
+        $courier->name = 'Roman';
+        $courier->user_id = 1;
+        $courier->push();
     }
 
     /**

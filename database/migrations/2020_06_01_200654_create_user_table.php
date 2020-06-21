@@ -1,8 +1,8 @@
 <?php
 
+use App\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUserTable extends Migration
@@ -25,9 +25,10 @@ class CreateUserTable extends Migration
             $table->foreign('user_id')->references('id')->on('user');
         });
 
-        DB::table('user')->insert(
-            ['name' => 'dev', 'email' => 'dabalroman@gmail.com']
-        );
+        $user = new User();
+        $user->name = 'dev';
+        $user->email = 'dabalroman@gmail.com';
+        $user->push();
     }
 
     /**
