@@ -7,9 +7,8 @@ use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Laravel\Lumen\Routing\Controller as BaseController;
 
-class DataCollector extends BaseController
+class DataCollector extends Controller
 {
     use ApiResponser;
 
