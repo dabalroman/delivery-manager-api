@@ -6,6 +6,8 @@ use Laravel\Lumen\Routing\Router;
 
 $router->get('/xls/{filename}', 'DataCollector@getDataFromXls');
 
+$router->get('/resolveGeocode', 'GeocodeController@resolve');
+
 $router->get('batch/{batchID}', 'BatchController@get');
 $router->post('batch/route', 'BatchController@postRoute');
 

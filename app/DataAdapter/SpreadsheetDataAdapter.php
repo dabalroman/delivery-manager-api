@@ -5,11 +5,14 @@ namespace App\DataAdapter;
 
 use App\Address;
 use App\Batch;
+use App\GMaps_API\GeocodeService;
 use App\Http\Controllers\Controller;
 use App\Order;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
+
+ini_set('max_execution_time', 300);
 
 abstract class SpreadsheetDataAdapter extends Controller
 {
@@ -97,7 +100,17 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Hashes are created from type and address(city, street, number and flat)
      * @param array $data
      */
-    abstract protected function createHashes(&$data);
+    private function createHashes(&$data)
+    {
+        foreach ($data as &$orderData) {
+            $orderData['address_hash'] = md5(
+                $orderData['city'] . '#'
+                . $orderData['street'] . '#'
+                . $orderData['street_number'] . '#'
+                . $orderData['flat_number']
+            );
+        }
+    }
 
     /**
      * Save data to file
@@ -106,6 +119,10 @@ abstract class SpreadsheetDataAdapter extends Controller
      */
     abstract protected function saveData($filename, &$data);
 
+    /**
+     * Push all data to db
+     * @param array $data
+     */
     private function pushDataToDb(array &$data)
     {
         $this->pushAddressToDb($data);
@@ -121,7 +138,7 @@ abstract class SpreadsheetDataAdapter extends Controller
                 $addressFromDB = (new Address)->where('id_hash', $orderData['address_hash'])->first();
 
                 if (is_null($addressFromDB)) {
-                    //Address don't exist, push
+                    //Address don't exist, geocode and push
                     $address = new Address;
 
                     $address->city = $orderData['city'];
@@ -129,6 +146,7 @@ abstract class SpreadsheetDataAdapter extends Controller
                     $address->street_number = $orderData['street_number'];
                     $address->flat_number = $orderData['flat_number'];
                     $address->floor = $orderData['floor'];
+                    $address->geo_cord = GeocodeService::getGeocode($orderData['city'] . ', ' . $orderData['street'] . ' ' . $orderData['street_number']);
                     $address->client_name = $orderData['client_name'];
                     $address->delivery_hours = $orderData['delivery_hours'];
                     $address->phone = $orderData['phone'];
@@ -201,7 +219,7 @@ abstract class SpreadsheetDataAdapter extends Controller
     }
 
     /**
-     * Verify filename and it's existence
+     * Verify filename and file existence
      * @param $filename
      * @return bool
      * @throws Exception

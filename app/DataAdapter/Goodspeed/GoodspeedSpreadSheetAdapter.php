@@ -174,21 +174,6 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function createHashes(&$data)
-    {
-        foreach ($data as &$orderData) {
-            $orderData['address_hash'] = md5(
-                $orderData['city'] . '#'
-                . $orderData['street'] . '#'
-                . $orderData['street_number'] . '#'
-                . $orderData['flat_number']
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function saveData($filename, &$data)
     {
         $f = fopen(__DIR__ . '/../../../storage/spreadsheets/' . $filename . '.json', 'w');
