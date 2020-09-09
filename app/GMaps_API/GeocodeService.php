@@ -3,12 +3,14 @@
 
 namespace App\GMaps_API;
 
-use App\GeocodeCache;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
 class GeocodeService
 {
+    const CACHE_PATH = '\..\..\storage\app\geocodeServiceCache';
+    const CACHE_FILENAME = '\cache.json';
+
     /**
      * @param string $address
      * @return mixed
@@ -42,10 +44,15 @@ class GeocodeService
     private static function saveToCache($address, $geocode)
     {
         try {
-            $cache = new GeocodeCache;
-            $cache->key = $address;
-            $cache->geocode = $geocode;
-            $cache->push();
+            $cachePath = realpath(__DIR__ . self::CACHE_PATH . self::CACHE_FILENAME);
+            $cache = [];
+
+            if ($cachePath) {
+                $cache = json_decode(file_get_contents($cachePath), true);
+            }
+
+            $cache[$address] = $geocode;
+            file_put_contents(realpath(__DIR__ . self::CACHE_PATH) . self::CACHE_FILENAME, json_encode($cache, JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             return false;
         }
@@ -59,6 +66,14 @@ class GeocodeService
      */
     private static function readFromCache($address)
     {
-        return (new GeocodeCache)->where('key', $address)->first()['geocode'] ?? false;
+        $cachePath = realpath(__DIR__ . self::CACHE_PATH . self::CACHE_FILENAME);
+
+        if (!$cachePath) {
+            return false;
+        }
+
+        $cache = json_decode(file_get_contents($cachePath), true);
+
+        return $cache[$address] ?? false;
     }
 }
