@@ -15,11 +15,11 @@ class CreateRouteTable extends Migration
     {
         Schema::create('route', function (Blueprint $table) {
             $table->id();
-            $table->string('addresses_ids')->nullable(false);
+            $table->string('addresses_ids');
             $table->char('id_hash', 32);
             $table->char('routed_hash', 32);
-            $table->foreignId('courier_id');
-            $table->foreignId('batch_id')->nullable(false);
+            $table->foreignId('courier_id')->nullable();
+            $table->foreignId('batch_id');
             $table->timestamps();
 
             $table->foreign('courier_id')->references('id')->on('courier');

@@ -16,12 +16,12 @@ class CreateImportBatchTable extends Migration
         Schema::create('import_batch', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->string('source', 64)->nullable(false);
+            $table->string('source', 64);
             $table->date('delivery_date');
             $table->smallInteger('new_addresses_amount');
             $table->smallInteger('known_addresses_amount');
             $table->smallInteger('orders_amount');
-            $table->dateTime('import_date')->nullable(false);
+            $table->dateTime('import_date');
         });
     }
 

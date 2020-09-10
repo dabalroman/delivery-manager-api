@@ -15,12 +15,12 @@ class CreateOrderTable extends Migration
     {
         Schema::create('order', function (Blueprint $table) {
             $table->id();
-            $table->string('type', 16)->nullable(false);
-            $table->tinyInteger('amount', false, true)->nullable(false);
+            $table->string('type', 16);
+            $table->tinyInteger('amount', false, true);
             $table->foreignId('address_id');
             $table->foreignId('batch_id');
             $table->foreignId('owner');
-            $table->foreignId('assigned_to')->nullable(true);
+            $table->foreignId('assigned_to')->nullable();
             $table->timestamps();
 
             $table->foreign('address_id')->references('id')->on('address');
