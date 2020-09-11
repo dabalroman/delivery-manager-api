@@ -43,6 +43,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Address whereStreet($value)
  * @method static Builder|Address whereStreetNumber($value)
  * @method static Builder|Address whereUpdatedAt($value)
+ * @method whereIn(string $string, array $addresses_array)
  * @mixin Eloquent
  */
 class Address extends Model
