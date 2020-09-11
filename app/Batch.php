@@ -35,6 +35,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Batch whereDeliveryDate($value)
  * @property int $user_id
  * @method static Builder|Batch whereUserId($value)
+ * @method findOrFail($batchID)
  */
 class Batch extends Model
 {

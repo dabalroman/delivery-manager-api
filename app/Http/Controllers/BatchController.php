@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Batch;
 use App\Route;
+use App\Traits\ApiLogger;
 use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class BatchController extends Controller
 {
     use ApiResponser;
+    use ApiLogger;
 
     /**
      * @param $batchID
@@ -20,6 +23,15 @@ class BatchController extends Controller
      */
     public function get($batchID)
     {
+        $validator = Validator::make(['batch_id' => $batchID], [
+            'batch_id' => 'required|integer|exists:import_batch,id',
+        ]);
+
+        if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), ['batch_id' => $batchID]);
+            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
+        }
+
         $data = [];
 
         try {
@@ -41,6 +53,7 @@ class BatchController extends Controller
             $data['routes'] = (new Route)->where('batch_id', $batch->id)->get();
 
         } catch (Exception $e) {
+            $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

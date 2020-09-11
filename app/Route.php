@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Route whereUpdatedAt($value)
  * @method findOrNew($route_id)
  * @method find($routeID)
+ * @method where(string $string, $id)
  * @mixin Eloquent
  */
 class Route extends Model
