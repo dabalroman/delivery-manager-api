@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Address;
 use App\Route;
+use App\Traits\ApiLogger;
 use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,16 +14,20 @@ use Illuminate\Support\Facades\Validator;
 class RouteController extends Controller
 {
     use ApiResponser;
+    use ApiLogger;
 
     public function post(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $params = $request->all();
+
+        $validator = Validator::make($params, [
             'addresses_ids' => 'required|string|regex:/^(\d+,)*(\d+)$/i',
             'batch_id' => 'required|integer|exists:import_batch,id',
             'courier_id' => 'integer|exists:courier,id',
         ]);
 
         if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), $params);
             return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
         }
 
@@ -56,6 +61,7 @@ class RouteController extends Controller
             ];
 
         } catch (Exception $e) {
+            $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -75,6 +81,7 @@ class RouteController extends Controller
         ]);
 
         if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), $params);
             return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
         }
 
@@ -118,6 +125,7 @@ class RouteController extends Controller
             ];
 
         } catch (Exception $e) {
+            $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -133,6 +141,7 @@ class RouteController extends Controller
         ]);
 
         if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), $params);
             return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
         }
 
@@ -148,6 +157,37 @@ class RouteController extends Controller
             ];
 
         } catch (Exception $e) {
+            $this->logError($e);
+            return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->successResponse($data, Response::HTTP_OK);
+    }
+
+    public function delete($routeID)
+    {
+        $params = ['route_id' => $routeID];
+
+        $validator = Validator::make($params, [
+            'route_id' => 'required|integer|exists:route,id'
+        ]);
+
+        if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), $params);
+            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            /** @var Route $route */
+            $route = (new Route)->find($routeID);
+
+            $data = [
+                'route_id' => $route->id,
+            ];
+
+            $route->delete();
+        } catch (Exception $e) {
+            $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

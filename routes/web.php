@@ -11,8 +11,9 @@ $router->get('resolveGeocode', 'GeocodeController@resolve');
 $router->get('batch/{batchID}', 'BatchController@get');
 
 $router->get('route/{routeID}', 'RouteController@get');
-$router->put('route/{routeID}', 'RouteController@put');
 $router->post('route', 'RouteController@post');
+$router->put('route/{routeID}', 'RouteController@put');
+$router->delete('route/{routeID}', 'RouteController@delete');
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
