@@ -45,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Address whereUpdatedAt($value)
  * @method whereIn(string $string, array $addresses_array)
  * @method where(string $string, $address_hash)
+ * @method find($addressID)
  * @mixin Eloquent
  */
 class Address extends Model
@@ -67,4 +68,16 @@ class Address extends Model
     ];
 
     protected $hidden = [];
+
+    /**
+     * @param string $city
+     * @param string $street
+     * @param string $streetNumber
+     * @param string $flatNumber
+     * @return string
+     */
+    static function createHash(string $city, string $street, string $streetNumber, string $flatNumber)
+    {
+        return md5("$city#$street#$streetNumber#$flatNumber");
+    }
 }

@@ -59,6 +59,44 @@ abstract class SpreadsheetDataAdapter extends Controller
     }
 
     /**
+     * Verify filename and file existence
+     * @param string $filename
+     * @return bool
+     * @throws Exception
+     */
+    private function doesFileExists(string $filename)
+    {
+        //Check file name
+        if (!preg_match('/^[A-z0-9]+$/', $filename)) {
+            throw new Exception('Wrong filename', Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        $path = __DIR__ . '/../../storage/spreadsheets/' . $filename;
+
+        //Check if file exists
+        if (file_exists($path . '.xls')) {
+            $path .= '.xls';
+        } else if (file_exists($path . '.xlsx')) {
+            $path .= '.xlsx';
+        } else {
+            return false;
+        }
+
+        $this->path = $path;
+        return true;
+    }
+
+    /**
+     * Check db for batches that might have imported that file
+     * @param string $filename
+     * @return bool
+     */
+    private function isAlreadyImported(string $filename)
+    {
+        return !is_null((new Batch)->firstWhere('source', '=', $filename));
+    }
+
+    /**
      * Verify if file exists and then grab all data
      * @param string $filename
      * @param array $data
@@ -104,21 +142,15 @@ abstract class SpreadsheetDataAdapter extends Controller
     private function createHashes(array &$data)
     {
         foreach ($data as &$orderData) {
-            $orderData['address_hash'] = md5(
-                $orderData['city'] . '#'
-                . $orderData['street'] . '#'
-                . $orderData['street_number'] . '#'
-                . $orderData['flat_number']
+
+            $orderData['address_hash'] = Address::createHash(
+                $orderData['city'],
+                $orderData['street'],
+                $orderData['street_number'],
+                $orderData['flat_number']
             );
         }
     }
-
-    /**
-     * Save data to file
-     * @param string $filename
-     * @param array $data
-     */
-    abstract protected function saveData(string $filename, array $data);
 
     /**
      * Push all data to db
@@ -236,40 +268,9 @@ abstract class SpreadsheetDataAdapter extends Controller
     }
 
     /**
-     * Verify filename and file existence
+     * Save data to file
      * @param string $filename
-     * @return bool
-     * @throws Exception
+     * @param array $data
      */
-    private function doesFileExists(string $filename)
-    {
-        //Check file name
-        if (!preg_match('/^[A-z0-9]+$/', $filename)) {
-            throw new Exception('Wrong filename', Response::HTTP_NOT_ACCEPTABLE);
-        }
-
-        $path = __DIR__ . '/../../storage/spreadsheets/' . $filename;
-
-        //Check if file exists
-        if (file_exists($path . '.xls')) {
-            $path .= '.xls';
-        } else if (file_exists($path . '.xlsx')) {
-            $path .= '.xlsx';
-        } else {
-            return false;
-        }
-
-        $this->path = $path;
-        return true;
-    }
-
-    /**
-     * Check db for batches that might have imported that file
-     * @param string $filename
-     * @return bool
-     */
-    private function isAlreadyImported(string $filename)
-    {
-        return !is_null((new Batch)->firstWhere('source', '=', $filename));
-    }
+    abstract protected function saveData(string $filename, array $data);
 }
