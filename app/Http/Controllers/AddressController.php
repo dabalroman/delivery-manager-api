@@ -169,34 +169,4 @@ class AddressController extends Controller
 
         return $this->successResponse($data, Response::HTTP_OK);
     }
-
-    public function delete($routeID)
-    {
-        $params = ['address_id' => $routeID];
-
-        $validator = Validator::make($params, [
-            'address_id' => 'required|integer|exists:route,id'
-        ]);
-
-        if ($validator->fails()) {
-            $this->logValidationFailure($validator->errors()->all(), $params);
-            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
-            /** @var Address $route */
-            $route = (new Address)->find($routeID);
-
-            $data = [
-                'address_id' => $route->id,
-            ];
-
-            $route->delete();
-        } catch (Exception $e) {
-            $this->logError($e);
-            return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        return $this->successResponse($data, Response::HTTP_OK);
-    }
 }
