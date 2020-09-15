@@ -16,7 +16,7 @@ class DataCollector extends Controller
      * @param $filename string
      * @return JsonResponse | Response
      */
-    public function getDataFromXls($filename)
+    public function getDataFromXls(string $filename)
     {
         try {
             $gs = new GoodspeedSpreadSheetAdapter($filename);

@@ -15,6 +15,9 @@ $router->post('route', 'RouteController@post');
 $router->put('route/{routeID}', 'RouteController@put');
 $router->delete('route/{routeID}', 'RouteController@delete');
 
+$router->get('address/{addressID}', 'AddressController@get');
+$router->put('address/{addressID}', 'AddressController@put');
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
