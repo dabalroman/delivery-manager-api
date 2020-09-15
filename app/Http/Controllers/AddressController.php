@@ -53,7 +53,6 @@ class AddressController extends Controller
             if (isset($params['street'])) {
                 $address->street = $params['street'];
                 $hashUpdateNeeded = true;
-
             }
 
             if (isset($params['street_number'])) {
@@ -96,11 +95,14 @@ class AddressController extends Controller
             }
 
             if ($hashUpdateNeeded) {
+                /** @var Address $temp */
+                $temp = (new Address)->find($addressID);
+
                 $address->id_hash = Address::createHash(
-                    $params['city'],
-                    $params['street'],
-                    $params['street_number'],
-                    $params['flat_number']
+                    $params['city'] ?? $temp->city,
+                    $params['street'] ?? $temp->street,
+                    $params['street_number'] ?? $temp->street_number,
+                    $params['flat_number'] ?? $temp->flat_number
                 );
             }
 
