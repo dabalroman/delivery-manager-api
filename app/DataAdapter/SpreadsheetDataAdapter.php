@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
 
+//Allow long execution time needed for geocoding requests
 ini_set('max_execution_time', 300);
 
 abstract class SpreadsheetDataAdapter extends Controller
@@ -59,11 +60,11 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Verify if file exists and then grab all data
-     * @param $filename
-     * @param $data
+     * @param string $filename
+     * @param array $data
      * @throws Exception
      */
-    abstract protected function loadData($filename, &$data);
+    abstract protected function loadData(string $filename, array &$data);
 
     /**
      * Trim data like headers
@@ -81,26 +82,26 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Standardize every field of incoming data
      * @param array $data
      */
-    abstract protected function standardizeData(&$data);
+    abstract protected function standardizeData(array &$data);
 
     /**
      * Combine similar data into one object
      * @param array $data
      */
-    abstract protected function combineSameAddresses(&$data);
+    abstract protected function combineSameAddresses(array &$data);
 
     /**
      * Split address into street, st. number and flat number
      * @param array $data
      */
-    abstract protected function organizeData(&$data);
+    abstract protected function organizeData(array &$data);
 
     /**
      * Create hash to easily compare addresses
      * Hashes are created from type and address(city, street, number and flat)
      * @param array $data
      */
-    private function createHashes(&$data)
+    private function createHashes(array &$data)
     {
         foreach ($data as &$orderData) {
             $orderData['address_hash'] = md5(
@@ -114,10 +115,10 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Save data to file
-     * @param $filename
-     * @param $data
+     * @param string $filename
+     * @param array $data
      */
-    abstract protected function saveData($filename, &$data);
+    abstract protected function saveData(string $filename, array $data);
 
     /**
      * Push all data to db
@@ -130,11 +131,16 @@ abstract class SpreadsheetDataAdapter extends Controller
         $this->pushOrdersToDb($data);
     }
 
+    /**
+     * Push (if needed) address data to db
+     * @param array $data
+     */
     private function pushAddressToDb(array &$data)
     {
         try {
             foreach ($data as &$orderData) {
                 //Look for address hash
+                /** @var Address $addressFromDB */
                 $addressFromDB = (new Address)->where('id_hash', $orderData['address_hash'])->first();
 
                 if (is_null($addressFromDB)) {
@@ -167,7 +173,11 @@ abstract class SpreadsheetDataAdapter extends Controller
         }
     }
 
-    private function pushBatchToDb(array &$data)
+    /**
+     * Push bash data
+     * @param array $data
+     */
+    private function pushBatchToDb(array $data)
     {
         $this->countOrdersAmount($data);
 
@@ -190,17 +200,24 @@ abstract class SpreadsheetDataAdapter extends Controller
         }
     }
 
-    private function countOrdersAmount(array &$data)
+    /**
+     * @param array $data
+     */
+    private function countOrdersAmount(array $data)
     {
-        foreach ($data as &$orderData) {
+        foreach ($data as $orderData) {
             $this->loadedOrdersAmount += $orderData['amount'];
         }
     }
 
-    private function pushOrdersToDb(array &$data)
+    /**
+     * Push all orders
+     * @param array $data
+     */
+    private function pushOrdersToDb(array $data)
     {
         try {
-            foreach ($data as &$orderData) {
+            foreach ($data as $orderData) {
                 $order = new Order;
 
                 $order->type = $orderData['type'];
@@ -220,11 +237,11 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Verify filename and file existence
-     * @param $filename
+     * @param string $filename
      * @return bool
      * @throws Exception
      */
-    private function doesFileExists($filename)
+    private function doesFileExists(string $filename)
     {
         //Check file name
         if (!preg_match('/^[A-z0-9]+$/', $filename)) {
@@ -248,10 +265,10 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Check db for batches that might have imported that file
-     * @param $filename
+     * @param string $filename
      * @return bool
      */
-    private function isAlreadyImported($filename)
+    private function isAlreadyImported(string $filename)
     {
         return !is_null((new Batch)->firstWhere('source', '=', $filename));
     }

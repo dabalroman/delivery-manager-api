@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection SpellCheckingInspection */
 
 
 namespace App\DataAdapter\Goodspeed;
@@ -19,10 +19,10 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function loadData($path, &$data)
+    protected function loadData(string $filename, array &$data)
     {
         try {
-            $spreadsheet = IOFactory::load($path);
+            $spreadsheet = IOFactory::load($filename);
             $data = $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
 
             //Get day and month date from format 'NameSurname DD.MM'
@@ -44,10 +44,11 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     }
 
     /**
-     * @inheritDoc
+     * @param array $data
+     * @param array $headers
      * @throws Exception
      */
-    protected function verifyHeaders(&$data, $headers)
+    protected function verifyHeaders(array $data, array $headers)
     {
         foreach ($data[0] as $key => $field) {
             if ($headers[$key] != $field) {
@@ -97,7 +98,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function standardizeData(&$data)
+    protected function standardizeData(array &$data)
     {
         foreach ($data as &$orderData) {
             $orderData['type'] = trim($orderData['type']);
@@ -114,7 +115,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function combineSameAddresses(&$data)
+    protected function combineSameAddresses(array &$data)
     {
         //Data is ordered alphabetically by address (street + number)
         $initCount = count($data);
@@ -136,7 +137,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function organizeData(&$data)
+    protected function organizeData(array &$data)
     {
         $this->findKey($data);
     }
@@ -174,7 +175,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     /**
      * @inheritDoc
      */
-    protected function saveData($filename, &$data)
+    protected function saveData(string $filename, array $data)
     {
         $f = fopen(__DIR__ . '/../../../storage/spreadsheets/' . $filename . '.json', 'w');
         fwrite($f, json_encode($data));

@@ -36,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property int $user_id
  * @method static Builder|Batch whereUserId($value)
  * @method findOrFail($batchID)
+ * @method firstWhere(string $string, string $string1, $filename)
  */
 class Batch extends Model
 {
