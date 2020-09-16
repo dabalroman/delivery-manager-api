@@ -18,24 +18,24 @@ class BatchController extends Controller
     use ApiLogger;
 
     /**
-     * @param $batchID
+     * @param int $batchId
      * @return JsonResponse | Response
      */
-    public function get($batchID)
+    public function get(int $batchId)
     {
-        $validator = Validator::make(['batch_id' => $batchID], [
+        $validator = Validator::make(['batch_id' => $batchId], [
             'batch_id' => 'required|integer|exists:import_batch,id',
         ]);
 
         if ($validator->fails()) {
-            $this->logValidationFailure($validator->errors()->all(), ['batch_id' => $batchID]);
+            $this->logValidationFailure($validator->errors()->all(), ['batch_id' => $batchId]);
             return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
         }
 
         $data = [];
 
         try {
-            $batch = (new Batch)->findOrFail($batchID);
+            $batch = (new Batch)->findOrFail($batchId);
 
             $data['batch_id'] = $batch->id;
             $data['delivery_date'] = $batch->delivery_date;
@@ -50,7 +50,7 @@ class BatchController extends Controller
                     'address.comment', 'address.code', 'address.phone', 'address.geo_cord'
                 )
                 ->join('address', 'order.address_id', '=', 'address.id')
-                ->where('order.batch_id', '=', $batchID)
+                ->where('order.batch_id', '=', $batchId)
                 ->orderBy('address.street')
                 ->get();
 

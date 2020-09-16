@@ -24,7 +24,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
      *
      * @var string[]
      */
-    private $headers = [
+    private array $headers = [
         'klient', 'Adres', 'Kod_miasto', 'Imię i nazwisko', 'Godziny', 'Telefon', 'Uwagi', 'Ilość', 'region'
     ];
 

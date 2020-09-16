@@ -11,9 +11,9 @@ class Authenticate
     /**
      * The authentication guard factory instance.
      *
-     * @var Auth
+     * @var Auth $auth
      */
-    protected $auth;
+    protected Auth $auth;
 
     /**
      * Create a new middleware instance.

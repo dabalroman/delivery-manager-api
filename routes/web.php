@@ -8,15 +8,15 @@ $router->get('xls/{filename}', 'DataCollector@getDataFromXls');
 
 $router->get('resolveGeocode', 'GeocodeController@resolve');
 
-$router->get('batch/{batchID}', 'BatchController@get');
+$router->get('batch/{batchId}', 'BatchController@get');
 
-$router->get('route/{routeID}', 'RouteController@get');
+$router->get('route/{routeId}', 'RouteController@get');
 $router->post('route', 'RouteController@post');
-$router->put('route/{routeID}', 'RouteController@put');
-$router->delete('route/{routeID}', 'RouteController@delete');
+$router->put('route/{routeId}', 'RouteController@put');
+$router->delete('route/{routeId}', 'RouteController@delete');
 
-$router->get('address/{addressID}', 'AddressController@get');
-$router->put('address/{addressID}', 'AddressController@put');
+$router->get('address/{addressId}', 'AddressController@get');
+$router->put('address/{addressId}', 'AddressController@put');
 
 $router->get('/', function () use ($router) {
     return $router->app->version();

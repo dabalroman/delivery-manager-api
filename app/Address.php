@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
 
 namespace App;
 
@@ -85,7 +85,7 @@ class Address extends Model
      * @param string $flatNumber
      * @return string
      */
-    static function createHash(string $city, string $street, string $streetNumber, string $flatNumber)
+    public static function createHash(string $city, string $street, string $streetNumber, string $flatNumber): string
     {
         return md5("$city#$street#$streetNumber#$flatNumber");
     }

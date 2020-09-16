@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Http;
  */
 class GeocodeService
 {
-    const CACHE_PATH = '\..\..\storage\app\geocodeServiceCache';
-    const CACHE_FILENAME = '\cache.json';
+    private const CACHE_PATH = '\..\..\storage\app\geocodeServiceCache';
+    private const CACHE_FILENAME = '\cache.json';
 
     /**
      * @param string $address

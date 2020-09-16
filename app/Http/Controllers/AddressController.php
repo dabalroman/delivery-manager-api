@@ -18,13 +18,13 @@ class AddressController extends Controller
 
     /**
      * @param Request $request
-     * @param integer $addressID
+     * @param integer $addressId
      * @return JsonResponse
      */
-    public function put(Request $request, int $addressID)
+    public function put(Request $request, int $addressId): JsonResponse
     {
         $params = $request->all();
-        $params['address_id'] = $addressID;
+        $params['address_id'] = $addressId;
 
         $validator = Validator::make($params, [
             'address_id' => 'required|integer|exists:address,id',
@@ -48,7 +48,7 @@ class AddressController extends Controller
 
         try {
             /** @var Address $address */
-            $address = (new Address)->find($addressID);
+            $address = (new Address)->find($addressId);
             $hashUpdateNeeded = false;
 
             if (isset($params['city'])) {
@@ -102,7 +102,7 @@ class AddressController extends Controller
 
             if ($hashUpdateNeeded) {
                 /** @var Address $temp */
-                $temp = (new Address)->find($addressID);
+                $temp = (new Address)->find($addressId);
 
                 $address->id_hash = Address::createHash(
                     $params['city'] ?? $temp->city,
@@ -137,9 +137,13 @@ class AddressController extends Controller
         return $this->successResponse($data, Response::HTTP_OK);
     }
 
-    public function get($addressID)
+    /**
+     * @param int $addressId
+     * @return JsonResponse
+     */
+    public function get(int $addressId): JsonResponse
     {
-        $params = ['address_id' => $addressID];
+        $params = ['address_id' => $addressId];
 
         $validator = Validator::make($params, [
             'address_id' => 'required|integer|exists:address,id'
@@ -152,7 +156,7 @@ class AddressController extends Controller
 
         try {
             /** @var Address $address */
-            $address = (new Address)->find($addressID);
+            $address = (new Address)->find($addressId);
 
             $data = [
                 'address_id' => $address->id,

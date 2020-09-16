@@ -9,6 +9,7 @@ use App\GMaps_API\GeocodeService;
 use App\Http\Controllers\Controller;
 use App\Order;
 use Carbon\Carbon;
+use DateTime;
 use Exception;
 use Illuminate\Http\Response;
 
@@ -18,20 +19,26 @@ ini_set('max_execution_time', 300);
 abstract class SpreadsheetDataAdapter extends Controller
 {
     protected string $filename;
-    protected $path = null;
-    protected $deliveryDate = null;
-    protected $newAddresses = 0;
-    protected $knownAddresses = 0;
-    protected $loadedOrdersAmount = 0;
-    protected $batchId = null;
+    protected ?string $path = null;
+    protected ?DateTime $deliveryDate = null;
+    protected ?int $batchId = null;
+    protected int $newAddresses = 0;
+    protected int $knownAddresses = 0;
+    protected int $loadedOrdersAmount = 0;
 
-    public function __construct($filename)
+    /**
+     * SpreadsheetDataAdapter constructor.
+     *
+     * @param string $filename
+     */
+    public function __construct(string $filename)
     {
         $this->filename = $filename;
     }
 
     /**
      * Retrieve data from file and return as standard objects array
+     *
      * @return array
      * @throws Exception
      */

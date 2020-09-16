@@ -13,7 +13,7 @@ class DataCollector extends Controller
     use ApiResponser;
 
     /**
-     * @param $filename string
+     * @param string $filename
      * @return JsonResponse | Response
      */
     public function getDataFromXls(string $filename)

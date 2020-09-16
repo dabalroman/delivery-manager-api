@@ -21,7 +21,7 @@ class RouteController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function post(Request $request)
+    public function post(Request $request): JsonResponse
     {
         $params = $request->all();
 
@@ -75,13 +75,13 @@ class RouteController extends Controller
 
     /**
      * @param Request $request
-     * @param integer $routeID
+     * @param int     $routeId
      * @return JsonResponse
      */
-    public function put(Request $request, int $routeID)
+    public function put(Request $request, int $routeId): JsonResponse
     {
         $params = $request->all();
-        $params['route_id'] = $routeID;
+        $params['route_id'] = $routeId;
 
         $validator = Validator::make($params, [
             'route_id' => 'required|integer|exists:route,id',
@@ -97,7 +97,7 @@ class RouteController extends Controller
 
         try {
             /** @var Route $route */
-            $route = (new Route)->find($routeID);
+            $route = (new Route)->find($routeId);
 
             if (isset($params['addresses_ids'])) {
 
@@ -143,12 +143,12 @@ class RouteController extends Controller
     }
 
     /**
-     * @param integer $routeID
+     * @param integer $routeId
      * @return JsonResponse
      */
-    public function get(int $routeID)
+    public function get(int $routeId): JsonResponse
     {
-        $params = ['route_id' => $routeID];
+        $params = ['route_id' => $routeId];
 
         $validator = Validator::make($params, [
             'route_id' => 'required|integer|exists:route,id'
@@ -161,7 +161,7 @@ class RouteController extends Controller
 
         try {
             /** @var Route $route */
-            $route = (new Route)->find($routeID);
+            $route = (new Route)->find($routeId);
 
             $data = [
                 'route_id' => $route->id,
@@ -179,12 +179,12 @@ class RouteController extends Controller
     }
 
     /**
-     * @param integer $routeID
+     * @param integer $routeId
      * @return JsonResponse
      */
-    public function delete(int $routeID)
+    public function delete(int $routeId)
     {
-        $params = ['route_id' => $routeID];
+        $params = ['route_id' => $routeId];
 
         $validator = Validator::make($params, [
             'route_id' => 'required|integer|exists:route,id'
@@ -197,7 +197,7 @@ class RouteController extends Controller
 
         try {
             /** @var Route $route */
-            $route = (new Route)->find($routeID);
+            $route = (new Route)->find($routeId);
 
             $data = [
                 'route_id' => $route->id,
