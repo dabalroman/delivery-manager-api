@@ -6,6 +6,11 @@ namespace App\GMaps_API;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Provides geocoding via GAPI with local caching
+ *
+ * @package App\GMaps_API
+ */
 class GeocodeService
 {
     const CACHE_PATH = '\..\..\storage\app\geocodeServiceCache';
@@ -15,7 +20,7 @@ class GeocodeService
      * @param string $address
      * @return mixed
      */
-    public static function getGeocode($address)
+    public static function getGeocode(string $address)
     {
         $cached = self::readFromCache($address);
 
@@ -41,7 +46,7 @@ class GeocodeService
      * @param string $geocode
      * @return bool
      */
-    private static function saveToCache($address, $geocode)
+    private static function saveToCache(string $address, string $geocode)
     {
         try {
             $cachePath = realpath(__DIR__ . self::CACHE_PATH . self::CACHE_FILENAME);
@@ -52,7 +57,10 @@ class GeocodeService
             }
 
             $cache[$address] = $geocode;
-            file_put_contents(realpath(__DIR__ . self::CACHE_PATH) . self::CACHE_FILENAME, json_encode($cache, JSON_PRETTY_PRINT));
+            file_put_contents(
+                realpath(__DIR__ . self::CACHE_PATH) . self::CACHE_FILENAME,
+                json_encode($cache, JSON_PRETTY_PRINT)
+            );
         } catch (Exception $e) {
             return false;
         }
@@ -62,9 +70,9 @@ class GeocodeService
 
     /**
      * @param string $address
-     * @return bool
+     * @return bool|string
      */
-    private static function readFromCache($address)
+    private static function readFromCache(string $address)
     {
         $cachePath = realpath(__DIR__ . self::CACHE_PATH . self::CACHE_FILENAME);
 

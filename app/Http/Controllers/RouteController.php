@@ -7,6 +7,7 @@ use App\Route;
 use App\Traits\ApiLogger;
 use App\Traits\ApiResponser;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +17,10 @@ class RouteController extends Controller
     use ApiResponser;
     use ApiLogger;
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function post(Request $request)
     {
         $params = $request->all();
@@ -68,7 +73,12 @@ class RouteController extends Controller
         return $this->successResponse($data, Response::HTTP_OK);
     }
 
-    public function put(Request $request, $routeID)
+    /**
+     * @param Request $request
+     * @param integer $routeID
+     * @return JsonResponse
+     */
+    public function put(Request $request, int $routeID)
     {
         $params = $request->all();
         $params['route_id'] = $routeID;
@@ -132,7 +142,11 @@ class RouteController extends Controller
         return $this->successResponse($data, Response::HTTP_OK);
     }
 
-    public function get($routeID)
+    /**
+     * @param integer $routeID
+     * @return JsonResponse
+     */
+    public function get(int $routeID)
     {
         $params = ['route_id' => $routeID];
 
@@ -164,7 +178,11 @@ class RouteController extends Controller
         return $this->successResponse($data, Response::HTTP_OK);
     }
 
-    public function delete($routeID)
+    /**
+     * @param integer $routeID
+     * @return JsonResponse
+     */
+    public function delete(int $routeID)
     {
         $params = ['route_id' => $routeID];
 

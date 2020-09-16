@@ -10,19 +10,19 @@ use Illuminate\Support\Carbon;
 /**
  * App\Address
  *
- * @property int $id
- * @property string $city
- * @property string $street
- * @property string $street_number
- * @property string $flat_number
- * @property int $floor
- * @property string $client_name
- * @property string $delivery_hours
- * @property string $phone
- * @property string $code
- * @property string $comment
- * @property string $geo_cord
- * @property string $id_hash
+ * @property int         $id
+ * @property string      $city
+ * @property string      $street
+ * @property string      $street_number
+ * @property string      $flat_number
+ * @property int         $floor
+ * @property string      $client_name
+ * @property string      $delivery_hours
+ * @property string      $phone
+ * @property string      $code
+ * @property string      $comment
+ * @property string      $geo_cord
+ * @property string      $id_hash
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Address newModelQuery()
@@ -50,8 +50,14 @@ use Illuminate\Support\Carbon;
  */
 class Address extends Model
 {
+    /**
+     * @var string
+     */
     protected $table = 'address';
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'city',
         'street',
@@ -67,6 +73,9 @@ class Address extends Model
         'id_hash',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $hidden = [];
 
     /**

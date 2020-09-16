@@ -10,9 +10,9 @@ use Illuminate\Support\Carbon;
 /**
  * App\User
  *
- * @property int $id
- * @property string $name
- * @property string $email
+ * @property int         $id
+ * @property string      $name
+ * @property string      $email
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|User newModelQuery()
@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|User whereId($value)
  * @method static Builder|User whereName($value)
  * @method static Builder|User whereUpdatedAt($value)
+ * @method static where(string $string, $input)
  * @mixin Eloquent
  */
 class User extends Model

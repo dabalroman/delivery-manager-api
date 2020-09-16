@@ -10,11 +10,11 @@ use Illuminate\Support\Carbon;
 /**
  * App\Order
  *
- * @property int $id
- * @property string $type
- * @property int $amount
- * @property int $address_id
- * @property int $batch_id
+ * @property int         $id
+ * @property string      $type
+ * @property int         $amount
+ * @property int         $address_id
+ * @property int         $batch_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Order newModelQuery()
@@ -28,15 +28,25 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Order whereType($value)
  * @method static Builder|Order whereUpdatedAt($value)
  * @mixin Eloquent
- * @property int $owner
- * @property int $assigned_to
+ * @property int         $owner
+ * @property int         $assigned_to
  * @method static Builder|Order whereAssignedTo($value)
  * @method static Builder|Order whereOwner($value)
  */
 class Order extends Model
 {
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'order';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'type',
         'amount',
@@ -46,5 +56,10 @@ class Order extends Model
         'assigned_to'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
     protected $hidden = [];
 }

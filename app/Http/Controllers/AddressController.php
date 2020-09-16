@@ -6,6 +6,7 @@ use App\Address;
 use App\Traits\ApiLogger;
 use App\Traits\ApiResponser;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +16,12 @@ class AddressController extends Controller
     use ApiResponser;
     use ApiLogger;
 
-    public function put(Request $request, $addressID)
+    /**
+     * @param Request $request
+     * @param integer $addressID
+     * @return JsonResponse
+     */
+    public function put(Request $request, int $addressID)
     {
         $params = $request->all();
         $params['address_id'] = $addressID;

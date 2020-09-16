@@ -5,6 +5,11 @@ namespace App\Traits;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Trait ApiLogger - Provides interface for event logging
+ *
+ * @package App\Traits
+ */
 trait ApiLogger
 {
     /**
@@ -12,7 +17,8 @@ trait ApiLogger
      */
     public function logError(Exception $exception)
     {
-        Log::error(__CLASS__ . ':' . $exception->getFile() . '(' . $exception->getLine() . '): ' . $exception->getMessage());
+        Log::error(__CLASS__ . ':' . $exception->getFile() . '(' . $exception->getLine() . '): '
+            . $exception->getMessage());
     }
 
     /**

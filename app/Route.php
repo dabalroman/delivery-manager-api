@@ -10,12 +10,12 @@ use Illuminate\Support\Carbon;
 /**
  * App\Route
  *
- * @property int $id
- * @property string $addresses_ids
- * @property string $id_hash
- * @property string $routed_hash
- * @property int $courier_id
- * @property int $batch_id
+ * @property int         $id
+ * @property string      $addresses_ids
+ * @property string      $id_hash
+ * @property string      $routed_hash
+ * @property int         $courier_id
+ * @property int         $batch_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Route newModelQuery()
@@ -36,8 +36,18 @@ use Illuminate\Support\Carbon;
  */
 class Route extends Model
 {
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'route';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'addresses_ids',
         'id_hash',
@@ -46,5 +56,10 @@ class Route extends Model
         'courier_id'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
     protected $hidden = [];
 }

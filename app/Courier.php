@@ -10,9 +10,9 @@ use Illuminate\Support\Carbon;
 /**
  * App\Courier
  *
- * @property int $id
- * @property string $name
- * @property int $user_id
+ * @property int         $id
+ * @property string      $name
+ * @property int         $user_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Courier newModelQuery()
@@ -27,12 +27,27 @@ use Illuminate\Support\Carbon;
  */
 class Courier extends Model
 {
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'courier';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'name',
         'user_id',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
     protected $hidden = [];
 }

@@ -1,4 +1,4 @@
-<?php /** @noinspection SpellCheckingInspection */
+<?php
 
 
 namespace App\DataAdapter\Goodspeed;
@@ -12,9 +12,21 @@ use Exception;
 use Illuminate\Http\Response;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
+/**
+ * Goodspeed xlsx files adapter
+ *
+ * @package App\DataAdapter\Goodspeed
+ */
 class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
 {
-    private $headers = ['klient', 'Adres', 'Kod_miasto', 'Imię i nazwisko', 'Godziny', 'Telefon', 'Uwagi', 'Ilość', 'region'];
+    /**
+     * Headers from xlsx file
+     *
+     * @var string[]
+     */
+    private $headers = [
+        'klient', 'Adres', 'Kod_miasto', 'Imię i nazwisko', 'Godziny', 'Telefon', 'Uwagi', 'Ilość', 'region'
+    ];
 
     /**
      * @inheritDoc
@@ -142,15 +154,28 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
         $this->findKey($data);
     }
 
+    /**
+     * @param $data
+     */
     protected function spiltAddress(&$data)
     {
         foreach ($data as &$orderData) {
             //Match address like Aleja bielska 141/10
-            preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\/([\S\-]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+            preg_match(
+                '/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\/([\S\-]*)/i',
+                $orderData['address'],
+                $split,
+                PREG_UNMATCHED_AS_NULL
+            );
 
             if (!count($split)) {
                 //Match address like Nowa 69 M10
-                preg_match('/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\sM([\w\d]*)/i', $orderData['address'], $split, PREG_UNMATCHED_AS_NULL);
+                preg_match(
+                    '/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\sM([\w\d]*)/i',
+                    $orderData['address'],
+                    $split,
+                    PREG_UNMATCHED_AS_NULL
+                );
             }
 
             if (isset($split[3]) && ($split[3] == '-' || $split[3] == '')) {
@@ -163,11 +188,19 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
         }
     }
 
+    /**
+     * @param $data
+     */
     protected function findKey(&$data)
     {
         foreach ($data as &$orderData) {
             $orderData['comment'] = str_replace('kluczyk', 'klucz', $orderData['comment']);
-            preg_match('/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i', $orderData['comment'], $split, PREG_UNMATCHED_AS_NULL);
+            preg_match(
+                '/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i',
+                $orderData['comment'],
+                $split,
+                PREG_UNMATCHED_AS_NULL
+            );
             $orderData['code'] = $split[0] ?? null;
         }
     }

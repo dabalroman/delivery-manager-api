@@ -17,7 +17,7 @@ ini_set('max_execution_time', 300);
 
 abstract class SpreadsheetDataAdapter extends Controller
 {
-    protected $filename;
+    protected string $filename;
     protected $path = null;
     protected $deliveryDate = null;
     protected $newAddresses = 0;
@@ -184,7 +184,9 @@ abstract class SpreadsheetDataAdapter extends Controller
                     $address->street_number = $orderData['street_number'];
                     $address->flat_number = $orderData['flat_number'];
                     $address->floor = $orderData['floor'];
-                    $address->geo_cord = GeocodeService::getGeocode($orderData['city'] . ', ' . $orderData['street'] . ' ' . $orderData['street_number']);
+                    $address->geo_cord = GeocodeService::getGeocode(
+                        $orderData['city'] . ', ' . $orderData['street'] . ' ' . $orderData['street_number']
+                    );
                     $address->client_name = $orderData['client_name'];
                     $address->delivery_hours = $orderData['delivery_hours'];
                     $address->phone = $orderData['phone'];

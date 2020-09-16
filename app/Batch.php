@@ -10,11 +10,11 @@ use Illuminate\Support\Carbon;
 /**
  * App\Batch
  *
- * @property int $id
- * @property string $source
- * @property string $import_date
- * @property int $new_addresses_amount
- * @property int $known_addresses_amount
+ * @property int         $id
+ * @property string      $source
+ * @property string      $import_date
+ * @property int         $new_addresses_amount
+ * @property int         $known_addresses_amount
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Batch newModelQuery()
@@ -30,19 +30,33 @@ use Illuminate\Support\Carbon;
  * @mixin Eloquent
  * @method static Builder|Batch whereKnownAddressesAmount($value)
  * @method static Builder|Batch whereNewAddressesAmount($value)
- * @property int $orders_amount
- * @property string $delivery_date
+ * @property int         $orders_amount
+ * @property string      $delivery_date
  * @method static Builder|Batch whereDeliveryDate($value)
- * @property int $user_id
+ * @property int         $user_id
  * @method static Builder|Batch whereUserId($value)
  * @method findOrFail($batchID)
  * @method firstWhere(string $string, string $string1, $filename)
  */
 class Batch extends Model
 {
-    protected $table = 'import_batch';
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
     public $timestamps = false;
-
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'import_batch';
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'user_id',
         'source',
@@ -53,5 +67,10 @@ class Batch extends Model
         'import_date'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
     protected $hidden = [];
 }
