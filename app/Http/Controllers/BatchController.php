@@ -51,10 +51,40 @@ class BatchController extends Controller
                 )
                 ->join('address', 'order.address_id', '=', 'address.id')
                 ->where('order.batch_id', '=', $batchId)
-                ->orderBy('address.street')
                 ->get();
 
             $data['routes'] = (new Route)->where('batch_id', $batch->id)->get();
+
+        } catch (Exception $e) {
+            $this->logError($e);
+            return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->successResponse($data, Response::HTTP_OK);
+    }
+
+    /**
+     * @param int $userId
+     * @return JsonResponse
+     */
+    public function list(int $userId)
+    {
+        $validator = Validator::make(['user_id' => $userId], [
+            'user_id' => 'required|integer|exists:user,id',
+        ]);
+
+        if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), ['user_id' => $userId]);
+            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $data = [];
+
+        try {
+            $data['user_id'] = $userId;
+            $data['batches'] = DB::table('import_batch')
+                ->select('id', 'delivery_date', 'new_addresses_amount', 'known_addresses_amount', 'orders_amount')
+                ->get();
 
         } catch (Exception $e) {
             $this->logError($e);

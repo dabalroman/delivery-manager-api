@@ -9,6 +9,7 @@ $router->get('xls/{filename}', 'DataCollector@getDataFromXls');
 $router->get('resolveGeocode', 'GeocodeController@resolve');
 
 $router->get('batch/{batchId}', 'BatchController@get');
+$router->get('batch/list/{userId}', 'BatchController@list');
 
 $router->get('route/{routeId}', 'RouteController@get');
 $router->post('route', 'RouteController@post');
