@@ -22,11 +22,20 @@ trait ApiLogger
     }
 
     /**
-     * @param $failsArray
+     * @param       $failsArray
      * @param array $data
      */
     public function logValidationFailure($failsArray, $data = [])
     {
         Log::notice(__CLASS__ . ': Validation error: ' . join(' / ', $failsArray), $data);
+    }
+
+    /**
+     * @param string $info
+     * @param array  $data
+     */
+    public function logInfo(string $info, $data = [])
+    {
+        Log::info(__CLASS__ . ': ' . $info, $data);
     }
 }
