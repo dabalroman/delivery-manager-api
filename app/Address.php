@@ -79,13 +79,13 @@ class Address extends Model
     protected $hidden = [];
 
     /**
-     * @param string $city
-     * @param string $street
-     * @param string $streetNumber
-     * @param string $flatNumber
+     * @param string        $city
+     * @param string        $street
+     * @param string        $streetNumber
+     * @param string | null $flatNumber
      * @return string
      */
-    public static function createHash(string $city, string $street, string $streetNumber, string $flatNumber): string
+    public static function createHash(string $city, string $street, string $streetNumber, ?string $flatNumber): string
     {
         return md5("$city#$street#$streetNumber#$flatNumber");
     }
