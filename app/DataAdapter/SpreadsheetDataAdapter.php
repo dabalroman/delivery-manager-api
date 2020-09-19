@@ -8,6 +8,7 @@ use App\Batch;
 use App\GMaps_API\GeocodeService;
 use App\Http\Controllers\Controller;
 use App\Order;
+use App\Pathfinder\Pathfinder;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -134,6 +135,7 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Standardize every field of incoming data
      *
      * Fills fields STREET, STREET_NUMBER, FLAT_NUMBER
+     *
      * @param array $data
      */
     abstract protected function standardizeData(array &$data);
@@ -142,6 +144,7 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Combine similar address data into one object
      *
      * Fills field AMOUNT
+     *
      * @param array $data
      */
     abstract protected function combineSameAddresses(array &$data);
@@ -150,6 +153,7 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Finds out code from comment
      *
      * Fills field CODE
+     *
      * @param array $data
      */
     abstract protected function organizeData(array &$data);
@@ -159,6 +163,7 @@ abstract class SpreadsheetDataAdapter extends Controller
      * Hashes are created from type and address(city, street, number and flat)
      *
      * Fills field ADDRESS_HASH
+     *
      * @param array $data
      */
     private function createHashes(array &$data)
@@ -184,12 +189,14 @@ abstract class SpreadsheetDataAdapter extends Controller
         $this->pushAddressToDb($data);
         $this->pushBatchToDb($data);
         $this->pushOrdersToDb($data);
+        $this->createAndPushRouteToDb($data);
     }
 
     /**
      * Push (if needed) address data to db
      *
      * Fills field ADDRESS_ID
+     *
      * @param array $data
      */
     private function pushAddressToDb(array &$data)
@@ -293,6 +300,30 @@ abstract class SpreadsheetDataAdapter extends Controller
 
                 $order->save();
             }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    /**
+     * Creates and saves route
+     *
+     * @param array $data
+     */
+    private function createAndPushRouteToDb(array $data)
+    {
+        try {
+            $addressesIds = array_map(
+                function ($orderData) {
+                    return $orderData[OrderDataArray::ADDRESS_ID];
+                },
+                $data
+            );
+
+            $pathfinder = new Pathfinder($this->batchId);
+            $route = $pathfinder->simpleRoute($addressesIds);
+            $route->save();
+
         } catch (Exception $e) {
             echo $e->getMessage();
         }

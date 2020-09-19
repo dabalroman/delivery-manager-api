@@ -62,4 +62,23 @@ class Route extends Model
      * @var array
      */
     protected $hidden = [];
+
+    /**
+     * @param int[] $addressesIds
+     * @return string
+     */
+    public static function createIdHash(array $addressesIds): string
+    {
+        sort($addressesIds);
+        return md5(join(',', $addressesIds));
+    }
+
+    /**
+     * @param int[] $addressesIds
+     * @return string
+     */
+    public static function createRoutedHash(array $addressesIds): string
+    {
+        return md5(join(',', $addressesIds));
+    }
 }

@@ -109,12 +109,9 @@ class RouteController extends Controller
                     throw new Exception('Wrong address id!');
                 }
 
-                sort($addresses_array);
-                $addresses_sorted = join(',', $addresses_array);
-
                 $route->addresses_ids = $addresses;
-                $route->id_hash = md5($addresses_sorted);
-                $route->routed_hash = md5($addresses);
+                $route->routed_hash = Route::createRoutedHash($addresses_array);
+                $route->id_hash = Route::createIdHash($addresses_array);
             }
 
             if (isset($params['batch_id'])) {
