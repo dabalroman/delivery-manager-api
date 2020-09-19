@@ -67,6 +67,7 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Verify filename and file existence
+     *
      * @param string $filename
      * @return bool
      * @throws Exception
@@ -95,6 +96,7 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Check db for batches that might have imported that file
+     *
      * @param string $filename
      * @return bool
      */
@@ -105,38 +107,49 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Verify if file exists and then grab all data
+     *
      * @param string $filename
-     * @param array $data
+     * @param array  $data
      * @throws Exception
      */
     abstract protected function loadData(string $filename, array &$data);
 
     /**
      * Trim data like headers
+     *
      * @param $data
      */
     abstract protected function trimData(&$data);
 
     /**
      * Add keys to array
+     *
+     * Fills fields TYPE, FULL_ADDRESS, CITY, DELIVERY_HOURS, CLIENT_NAME, COMMENT
+     *
      * @param $data
      */
     abstract protected function addKeys(&$data);
 
     /**
      * Standardize every field of incoming data
+     *
+     * Fills fields STREET, STREET_NUMBER, FLAT_NUMBER
      * @param array $data
      */
     abstract protected function standardizeData(array &$data);
 
     /**
-     * Combine similar data into one object
+     * Combine similar address data into one object
+     *
+     * Fills field AMOUNT
      * @param array $data
      */
     abstract protected function combineSameAddresses(array &$data);
 
     /**
-     * Split address into street, st. number and flat number
+     * Finds out code from comment
+     *
+     * Fills field CODE
      * @param array $data
      */
     abstract protected function organizeData(array &$data);
@@ -144,23 +157,26 @@ abstract class SpreadsheetDataAdapter extends Controller
     /**
      * Create hash to easily compare addresses
      * Hashes are created from type and address(city, street, number and flat)
+     *
+     * Fills field ADDRESS_HASH
      * @param array $data
      */
     private function createHashes(array &$data)
     {
         foreach ($data as &$orderData) {
 
-            $orderData['address_hash'] = Address::createHash(
-                $orderData['city'],
-                $orderData['street'],
-                $orderData['street_number'],
-                $orderData['flat_number']
+            $orderData[OrderDataArray::ADDRESS_HASH] = Address::createHash(
+                $orderData[OrderDataArray::CITY],
+                $orderData[OrderDataArray::STREET],
+                $orderData[OrderDataArray::STREET_NUMBER],
+                $orderData[OrderDataArray::FLAT_NUMBER]
             );
         }
     }
 
     /**
      * Push all data to db
+     *
      * @param array $data
      */
     private function pushDataToDb(array &$data)
@@ -172,6 +188,8 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Push (if needed) address data to db
+     *
+     * Fills field ADDRESS_ID
      * @param array $data
      */
     private function pushAddressToDb(array &$data)
@@ -180,32 +198,34 @@ abstract class SpreadsheetDataAdapter extends Controller
             foreach ($data as &$orderData) {
                 //Look for address hash
                 /** @var Address $addressFromDB */
-                $addressFromDB = (new Address)->where('id_hash', $orderData['address_hash'])->first();
+                $addressFromDB = (new Address)->where('id_hash', $orderData[OrderDataArray::ADDRESS_HASH])->first();
 
                 if (is_null($addressFromDB)) {
                     //Address don't exist, geocode and push
                     $address = new Address;
 
-                    $address->city = $orderData['city'];
-                    $address->street = $orderData['street'];
-                    $address->street_number = $orderData['street_number'];
-                    $address->flat_number = $orderData['flat_number'];
-                    $address->floor = $orderData['floor'];
+                    $address->city = $orderData[OrderDataArray::CITY];
+                    $address->street = $orderData[OrderDataArray::STREET];
+                    $address->street_number = $orderData[OrderDataArray::STREET_NUMBER];
+                    $address->flat_number = $orderData[OrderDataArray::FLAT_NUMBER];
+                    $address->floor = $orderData[OrderDataArray::FLOOR];
                     $address->geo_cord = GeocodeService::getGeocode(
-                        $orderData['city'] . ', ' . $orderData['street'] . ' ' . $orderData['street_number']
+                        $orderData[OrderDataArray::CITY] . ', '
+                        . $orderData[OrderDataArray::STREET] . ' '
+                        . $orderData[OrderDataArray::STREET_NUMBER]
                     );
-                    $address->client_name = $orderData['client_name'];
-                    $address->delivery_hours = $orderData['delivery_hours'];
-                    $address->phone = $orderData['phone'];
-                    $address->code = $orderData['code'];
-                    $address->comment = $orderData['comment'];
-                    $address->id_hash = $orderData['address_hash'];
+                    $address->client_name = $orderData[OrderDataArray::CLIENT_NAME];
+                    $address->delivery_hours = $orderData[OrderDataArray::DELIVERY_HOURS];
+                    $address->phone = $orderData[OrderDataArray::PHONE];
+                    $address->code = $orderData[OrderDataArray::CODE];
+                    $address->comment = $orderData[OrderDataArray::COMMENT];
+                    $address->id_hash = $orderData[OrderDataArray::ADDRESS_HASH];
                     $address->save();
 
-                    $orderData['address_id'] = $address->id;
+                    $orderData[OrderDataArray::ADDRESS_ID] = $address->id;
                     $this->newAddresses++;
                 } else {
-                    $orderData['address_id'] = $addressFromDB->id;
+                    $orderData[OrderDataArray::ADDRESS_ID] = $addressFromDB->id;
                     $this->knownAddresses++;
                 }
             }
@@ -216,6 +236,7 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Push bash data
+     *
      * @param array $data
      */
     private function pushBatchToDb(array $data)
@@ -247,12 +268,13 @@ abstract class SpreadsheetDataAdapter extends Controller
     private function countOrdersAmount(array $data)
     {
         foreach ($data as $orderData) {
-            $this->loadedOrdersAmount += $orderData['amount'];
+            $this->loadedOrdersAmount += $orderData[OrderDataArray::AMOUNT];
         }
     }
 
     /**
      * Push all orders
+     *
      * @param array $data
      */
     private function pushOrdersToDb(array $data)
@@ -261,9 +283,9 @@ abstract class SpreadsheetDataAdapter extends Controller
             foreach ($data as $orderData) {
                 $order = new Order;
 
-                $order->type = $orderData['type'];
-                $order->amount = $orderData['amount'];
-                $order->address_id = $orderData['address_id'];
+                $order->type = $orderData[OrderDataArray::TYPE];
+                $order->amount = $orderData[OrderDataArray::AMOUNT];
+                $order->address_id = $orderData[OrderDataArray::ADDRESS_ID];
                 $order->batch_id = $this->batchId;
 
                 $order->owner = 1;
@@ -278,8 +300,9 @@ abstract class SpreadsheetDataAdapter extends Controller
 
     /**
      * Save data to file
+     *
      * @param string $filename
-     * @param array $data
+     * @param array  $data
      */
     abstract protected function saveData(string $filename, array $data);
 }

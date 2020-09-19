@@ -4,6 +4,7 @@
 namespace App\DataAdapter\Goodspeed;
 
 
+use App\DataAdapter\OrderDataArray;
 use App\DataAdapter\SpreadsheetDataAdapter;
 use DateInterval;
 use DateTime;
@@ -74,8 +75,10 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
      */
     protected function trimData(&$data)
     {
+        //Remove headers row
         array_shift($data);
 
+        //Remove last column
         foreach ($data as &$orderData) {
             array_pop($orderData);
         }
@@ -88,21 +91,21 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     {
         foreach ($data as &$orderData) {
             $orderData = [
-                'type' => $orderData[0],
-                'address' => $orderData[1],
-                'city' => $orderData[2],
-                'street' => null,
-                'street_number' => null,
-                'flat_number' => null,
-                'floor' => null,
-                'client_name' => $orderData[3],
-                'delivery_hours' => $orderData[4],
-                'phone' => $orderData[5],
-                'comment' => $orderData[6],
-                'amount' => $orderData[7],
-                'code' => null,
-                'address_hash' => null,
-                'address_id' => null
+                OrderDataArray::TYPE => $orderData[0],
+                OrderDataArray::FULL_ADDRESS => $orderData[1],
+                OrderDataArray::CITY => $orderData[2],
+                OrderDataArray::STREET => null,
+                OrderDataArray::STREET_NUMBER => null,
+                OrderDataArray::FLAT_NUMBER => null,
+                OrderDataArray::FLOOR => null,
+                OrderDataArray::CLIENT_NAME => $orderData[3],
+                OrderDataArray::DELIVERY_HOURS => $orderData[4],
+                OrderDataArray::PHONE => $orderData[5],
+                OrderDataArray::COMMENT => $orderData[6],
+                OrderDataArray::AMOUNT => $orderData[7],
+                OrderDataArray::CODE => null,
+                OrderDataArray::ADDRESS_HASH => null,
+                OrderDataArray::ADDRESS_ID => null
             ];
         }
     }
@@ -113,12 +116,15 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     protected function standardizeData(array &$data)
     {
         foreach ($data as &$orderData) {
-            $orderData['type'] = trim($orderData['type']);
-            $orderData['address'] = mb_convert_case(trim($orderData['address']), MB_CASE_TITLE);
-            $orderData['city'] = mb_convert_case(trim($orderData['city']), MB_CASE_TITLE);
-            $orderData['delivery_hours'] = $orderData['delivery_hours'] ?? null;
-            $orderData['client_name'] = mb_convert_case(trim($orderData['client_name']), MB_CASE_TITLE);
-            $orderData['comment'] = trim($orderData['comment']);
+            $orderData[OrderDataArray::TYPE] = trim($orderData[OrderDataArray::TYPE]);
+            $orderData[OrderDataArray::FULL_ADDRESS] =
+                mb_convert_case(trim($orderData[OrderDataArray::FULL_ADDRESS]), MB_CASE_TITLE);
+            $orderData[OrderDataArray::CITY] =
+                mb_convert_case(trim($orderData[OrderDataArray::CITY]), MB_CASE_TITLE);
+            $orderData[OrderDataArray::DELIVERY_HOURS] = $orderData[OrderDataArray::DELIVERY_HOURS] ?? null;
+            $orderData[OrderDataArray::CLIENT_NAME] =
+                mb_convert_case(trim($orderData[OrderDataArray::CLIENT_NAME]), MB_CASE_TITLE);
+            $orderData[OrderDataArray::COMMENT] = trim($orderData[OrderDataArray::COMMENT]);
         }
 
         $this->spiltAddress($data);
@@ -132,12 +138,12 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
         //Data is ordered alphabetically by address (street + number)
         $initCount = count($data);
         for ($i = 1; $i < $initCount; $i++) {
-            if ($data[$i]['street'] == $data[$i - 1]['street']
-                && $data[$i]['street_number'] == $data[$i - 1]['street_number']
-                && $data[$i]['flat_number'] == $data[$i - 1]['flat_number']
-                && $data[$i]['city'] == $data[$i - 1]['city']
+            if ($data[$i][OrderDataArray::STREET] == $data[$i - 1][OrderDataArray::STREET]
+                && $data[$i][OrderDataArray::STREET_NUMBER] == $data[$i - 1][OrderDataArray::STREET_NUMBER]
+                && $data[$i][OrderDataArray::FLAT_NUMBER] == $data[$i - 1][OrderDataArray::FLAT_NUMBER]
+                && $data[$i][OrderDataArray::CITY] == $data[$i - 1][OrderDataArray::CITY]
             ) {
-                $data[$i]['amount'] += $data[$i - 1]['amount'];
+                $data[$i][OrderDataArray::AMOUNT] += $data[$i - 1][OrderDataArray::AMOUNT];
                 unset($data[$i - 1]);
             }
         }
@@ -163,7 +169,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
             //Match address like Aleja bielska 141/10
             preg_match(
                 '/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\/([\S\-]*)/i',
-                $orderData['address'],
+                $orderData[OrderDataArray::FULL_ADDRESS],
                 $split,
                 PREG_UNMATCHED_AS_NULL
             );
@@ -172,7 +178,7 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
                 //Match address like Nowa 69 M10
                 preg_match(
                     '/^([a-ząćęłńóśżźĄĆĘŁŃÓŚŻŹ.\s]+),?\s(\S+)\sM([\w\d]*)/i',
-                    $orderData['address'],
+                    $orderData[OrderDataArray::FULL_ADDRESS],
                     $split,
                     PREG_UNMATCHED_AS_NULL
                 );
@@ -182,9 +188,9 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
                 $split[3] = null;
             }
 
-            $orderData['street'] = $split[1] ?? null;
-            $orderData['street_number'] = $split[2] ?? null;
-            $orderData['flat_number'] = $split[3] ?? null;
+            $orderData[OrderDataArray::STREET] = $split[1] ?? null;
+            $orderData[OrderDataArray::STREET_NUMBER] = $split[2] ?? null;
+            $orderData[OrderDataArray::FLAT_NUMBER] = $split[3] ?? null;
         }
     }
 
@@ -194,14 +200,14 @@ class GoodspeedSpreadSheetAdapter extends SpreadsheetDataAdapter
     protected function findKey(&$data)
     {
         foreach ($data as &$orderData) {
-            $orderData['comment'] = str_replace('kluczyk', 'klucz', $orderData['comment']);
+            $orderData[OrderDataArray::COMMENT] = str_replace('kluczyk', 'klucz', $orderData[OrderDataArray::COMMENT]);
             preg_match(
                 '/(?:[*#]\d+[*#])|(?:\d+\s*(?:klucz)\s*\d+)|(?:\d+\*\d+)|(?:\d+#)/i',
-                $orderData['comment'],
+                $orderData[OrderDataArray::COMMENT],
                 $split,
                 PREG_UNMATCHED_AS_NULL
             );
-            $orderData['code'] = $split[0] ?? null;
+            $orderData[OrderDataArray::CODE] = $split[0] ?? null;
         }
     }
 
