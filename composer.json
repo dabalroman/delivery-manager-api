@@ -10,6 +10,7 @@
         "guzzlehttp/guzzle": "6.5.3",
         "laravel/lumen-framework": "^7.0",
         "phpoffice/phpspreadsheet": "1.12.0",
+        "emcconville/google-map-polyline-encoding-tool": "^1.2.4",
         "ext-json": "*"
     },
     "require-dev": {
