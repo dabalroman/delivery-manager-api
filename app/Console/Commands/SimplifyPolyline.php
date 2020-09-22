@@ -1,42 +1,34 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
 
 namespace App\Console\Commands;
 
-use App\Pathfinder\PolylineSimplifier;
+use App\Pathfinder\PolylineObject;
 use Exception;
 use Illuminate\Console\Command;
-use Polyline;
 
 class SimplifyPolyline extends Command
 {
-    protected $signature = "simplify:polyline {tolerance} {polyline}";
+    protected $signature = "simplify:polyline {polyline}";
 
     public function handle()
     {
-        $tolerance = $this->argument('tolerance');
-        $polyline = $this->argument('polyline');
+//        $tolerance = $this->argument('tolerance');
+//        $polyline = $this->argument('polyline');
+
+        $a = 'w`ypHewxrBBKHs@NiADY?A@M@I?GAEAGAGAGEKOa@Qc@';
+        $b = '_aypH{`yrB\o@Ra@LQHOHQDKBO@I';
+
+        $pll = PolylineObject::fromEncoded($a);
 
         try {
-            $points = Polyline::pair(Polyline::decode($polyline));
-            $points = array_map(function ($point) {
-                return ['x' => $point[0], 'y' => $point[1]];
-            }, $points);
-
-            $prev = count($points);
-            $points = PolylineSimplifier::simplify($points, 0.0003);
-            $after = count($points);
-            $diff = round((1 - $after / $prev) * 100, 2);
-
-            $points = array_map(function ($point) {
-                return [$point['x'], $point['y']];
-            }, $points);
-
-            print_r($points);
-            echo "\n\n" . Polyline::encode($points) . "\n\n";
-
-            echo "Prev $prev \nAfter $after \nOptimised $diff%";
+            $pll->joinAfter(PolylineObject::fromEncoded($b));
         } catch (Exception $e) {
-            $this->error("An error occurred");
+            echo $e->getMessage();
         }
+
+        echo $pll->encode() . "\n";
+        $pll->simplify();
+        echo $pll->encode() . "\n";
+        echo $pll;
     }
 }
