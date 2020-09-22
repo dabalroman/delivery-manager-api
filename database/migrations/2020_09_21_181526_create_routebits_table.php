@@ -14,11 +14,12 @@ class CreateRoutebitsTable extends Migration
     public function up()
     {
         Schema::create('routebits', function (Blueprint $table) {
-            $table->id();
             $table->string('start', 24);
             $table->string('end', 24);
             $table->string('polyline');
             $table->float('length');
+
+            $table->primary(['start', 'end']);
         });
     }
 
