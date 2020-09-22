@@ -16,7 +16,7 @@ class PolylineObject
      *
      * @param float[] $pointsArray Array of coordinates ([[x, y], [r, q], ...])
      */
-    public function __construct(array $pointsArray)
+    public function __construct(array $pointsArray = [])
     {
         $this->polyline = $pointsArray;
     }
@@ -64,7 +64,7 @@ class PolylineObject
      */
     public function joinAfter(PolylineObject $polylineObject)
     {
-        if (last($this->polyline) !== $polylineObject->polyline[0]) {
+        if (!empty($this->polyline) && last($this->polyline) !== $polylineObject->polyline[0]) {
             throw new Exception('Different outer points');
         }
 
