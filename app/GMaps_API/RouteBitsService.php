@@ -31,6 +31,7 @@ class RouteBitsService
         $cached = self::readFromCache($start, $end);
 
         if ($cached) {
+            self::saveToDb($start, $end, $cached['length'], $cached['polyline']);
             return $cached;
         }
 
