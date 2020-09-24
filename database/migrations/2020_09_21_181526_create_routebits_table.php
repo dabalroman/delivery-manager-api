@@ -17,7 +17,7 @@ class CreateRoutebitsTable extends Migration
             $table->string('start', 24);
             $table->string('end', 24);
             $table->string('polyline');
-            $table->float('length');
+            $table->integer('length');
 
             $table->primary(['start', 'end']);
         });

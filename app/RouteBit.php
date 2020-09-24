@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $start
  * @property string $end
  * @property string $polyline
- * @property float  $length
+ * @property int    $length
  * @method static Builder|RouteBit newModelQuery()
  * @method static Builder|RouteBit newQuery()
  * @method static Builder|RouteBit query()

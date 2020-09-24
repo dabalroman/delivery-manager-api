@@ -112,11 +112,11 @@ class RouteBitsService
     /**
      * @param string $start
      * @param string $end
-     * @param float  $length
+     * @param int    $length
      * @param string $polyline
      * @return bool
      */
-    private static function saveToDb(string $start, string $end, float $length, string $polyline)
+    private static function saveToDb(string $start, string $end, int $length, string $polyline)
     {
         /** @var RouteBit $routeBit */
         $routeBit = (new RouteBit)->firstOrNew(['start' => $start, 'end' => $end]);
@@ -133,11 +133,11 @@ class RouteBitsService
     /**
      * @param string $start    geocoded location
      * @param string $end      geocoded location
-     * @param float  $length   polyline length
+     * @param int    $length   polyline length
      * @param string $polyline stringified polyline
      * @return bool
      */
-    private static function saveToCache(string $start, string $end, float $length, string $polyline)
+    private static function saveToCache(string $start, string $end, int $length, string $polyline)
     {
         try {
             $cachePath = realpath(__DIR__ . self::CACHE_PATH . self::CACHE_FILENAME);
