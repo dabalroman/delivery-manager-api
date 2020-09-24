@@ -53,7 +53,7 @@ class BatchController extends Controller
                 ->where('order.batch_id', '=', $batchId)
                 ->get();
 
-            $data['routes'] = (new Route)->where('batch_id', $batch->id)->get();
+            $data['route'] = Route::getRouteData((new Route)->where('batch_id', $batch->id)->first()->id);
 
         } catch (Exception $e) {
             $this->logError($e);

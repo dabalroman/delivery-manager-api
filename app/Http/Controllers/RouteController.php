@@ -157,16 +157,7 @@ class RouteController extends Controller
         }
 
         try {
-            /** @var Route $route */
-            $route = (new Route)->find($routeId);
-
-            $data = [
-                'route_id' => $route->id,
-                'addresses_ids' => $route->addresses_ids,
-                'batch_id' => $route->batch_id,
-                'courier_id' => $route->courier_id
-            ];
-
+            $data = Route::getRouteData($routeId);
         } catch (Exception $e) {
             $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
