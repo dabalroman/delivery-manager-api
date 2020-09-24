@@ -15,9 +15,11 @@ class RouteBitsService
 
 
     /**
+     * Get polyline as a string
+     *
      * @param string $start geocoded location
      * @param string $end   geocoded location
-     * @return array stringified polyline and it's length
+     * @return array stringified polyline ['length' => $length,'polyline' => $polyline]
      * @throws Exception
      */
     public static function getRouteBit(string $start, string $end)
