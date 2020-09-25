@@ -90,7 +90,7 @@ class Route extends Model
      * @return array Full route info
      * [
      * 'route_id' => int, 'addresses_ids' => string,'batch_id' => int,
-     * 'courier_id' => int,'route_bits' => ['polyline' => string, 'length' => float]
+     * 'courier_id' => int, 'route_bits' => ['polyline' => string, 'length' => float]
      * ];
      * @throws Exception
      */

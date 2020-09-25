@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Address;
 use App\GMaps_API\RouteBitsService;
 use App\Traits\ApiLogger;
 use App\Traits\ApiResponser;
@@ -40,6 +41,39 @@ class RouteBitsController extends Controller
         }
 
         try {
+            $data = RouteBitsService::getRouteBit($start, $end);
+        } catch (Exception $e) {
+            $this->logError($e);
+            return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->successResponse($data, Response::HTTP_OK);
+    }
+
+    /**
+     * @param string $addressPair Two addresses id's in form [id,id]
+     * @return JsonResponse
+     */
+    public function getByAddressPair(string $addressPair): JsonResponse
+    {
+        [$a, $b] = explode(',', $addressPair);
+        $params = ['a' => $a, 'b' => $b];
+
+        $validator = Validator::make($params, [
+            'a' => 'required|integer|exists:address,id',
+            'b' => 'required|integer|exists:address,id',
+        ]);
+
+        if ($validator->fails()) {
+            $this->logValidationFailure($validator->errors()->all(), $params);
+            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            /** @var Address $start */
+            $start = (new Address)->find($a)->geo_cord;
+            $end = (new Address)->find($b)->geo_cord;
+
             $data = RouteBitsService::getRouteBit($start, $end);
         } catch (Exception $e) {
             $this->logError($e);
