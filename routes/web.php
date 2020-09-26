@@ -17,7 +17,7 @@ $router->put('route/{routeId}', 'RouteController@put');
 $router->delete('route/{routeId}', 'RouteController@delete');
 
 $router->get('route/bit/{start}/{end}', 'RouteBitsController@get');
-$router->get('route/bit/{addressPair}', 'RouteBitsController@getByAddressPair');
+$router->get('route/bit/{addressPairs}', 'RouteBitsController@getByAddressPair');
 
 $router->get('address/{addressId}', 'AddressController@get');
 $router->put('address/{addressId}', 'AddressController@put');

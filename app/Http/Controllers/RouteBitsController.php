@@ -51,30 +51,33 @@ class RouteBitsController extends Controller
     }
 
     /**
-     * @param string $addressPair Two addresses id's in form [id,id]
+     * @param string $addressPairs Addresses id's in form [id,id]
      * @return JsonResponse
      */
-    public function getByAddressPair(string $addressPair): JsonResponse
+    public function getByAddressPair(string $addressPairs): JsonResponse
     {
-        [$a, $b] = explode(',', $addressPair);
-        $params = ['a' => $a, 'b' => $b];
+        $addressesIds = explode(',', $addressPairs);
+        $idsAmount = count($addressesIds);
 
-        $validator = Validator::make($params, [
-            'a' => 'required|integer|exists:address,id',
-            'b' => 'required|integer|exists:address,id',
-        ]);
-
-        if ($validator->fails()) {
-            $this->logValidationFailure($validator->errors()->all(), $params);
-            return $this->errorResponse($validator->errors()->all(), Response::HTTP_BAD_REQUEST);
+        if ($idsAmount % 2 !== 0 && $idsAmount >= 2) {
+            $this->logValidationFailure('Wrong ids amount', ['amount' => $idsAmount]);
+            return $this->errorResponse('Wrong ids amount', Response::HTTP_BAD_REQUEST);
         }
 
-        try {
-            /** @var Address $start */
-            $start = (new Address)->find($a)->geo_cord;
-            $end = (new Address)->find($b)->geo_cord;
+        $data = [];
 
-            $data = RouteBitsService::getRouteBit($start, $end);
+        try {
+
+            for ($i = 0; $i < $idsAmount; $i += 2) {
+                /** @var Address $start */
+                $start = (new Address)->find($addressesIds[$i])->geo_cord;
+                $end = (new Address)->find($addressesIds[$i + 1])->geo_cord;
+
+                $routeBit = RouteBitsService::getRouteBit($start, $end);
+                $routeBit['id'] = $addressesIds[$i] . ',' . $addressesIds[$i + 1];
+                array_push($data, $routeBit);
+            }
+
         } catch (Exception $e) {
             $this->logError($e);
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
