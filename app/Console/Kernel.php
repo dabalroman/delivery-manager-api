@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\SimplifyPolyline::class
+        Commands\SimplifyPolyline::class,
+        Commands\PathfinderAlgoTestField::class
     ];
 
     /**
