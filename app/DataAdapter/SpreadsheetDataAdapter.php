@@ -7,8 +7,10 @@ use App\Address;
 use App\Batch;
 use App\GMaps_API\GeocodeService;
 use App\Http\Controllers\Controller;
+use App\Jobs\RouteBitsScrape;
 use App\Order;
 use App\Pathfinder\Pathfinder;
+use App\Route;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -320,10 +322,17 @@ abstract class SpreadsheetDataAdapter extends Controller
                 $data
             );
 
-            $pathfinder = new Pathfinder($this->batchId);
-            $route = $pathfinder->simpleRoute($addressesIds);
+            $path = Pathfinder::simpleRoute($addressesIds);
+
+            $route = new Route();
+            $route->addresses_ids = join(',', $path);
+            $route->batch_id = $this->batchId;
+            $route->id_hash = Route::createIdHash($path);
+            $route->routed_hash = Route::createRoutedHash($path);
             $route->save();
 
+            $job = new RouteBitsScrape($path);
+            $this->dispatch($job);
         } catch (Exception $e) {
             echo $e->getMessage();
         }

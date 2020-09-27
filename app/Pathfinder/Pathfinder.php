@@ -13,7 +13,7 @@ class Pathfinder
      *
      * @param int[] $addressesIds  Addresses ids in queried route
      * @param int[] $ignoredRoutes Routes ids that should be ignored during pathfinding
-     * @return int[]
+     * @return int[] Ordered addresses ids
      */
     public static function simpleRoute(array $addressesIds, $ignoredRoutes = []): array
     {
