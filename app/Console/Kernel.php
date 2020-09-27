@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\SimplifyPolyline::class,
-        Commands\PathfinderAlgoTestField::class
+        Commands\PathfinderAlgoTestField::class,
+        Commands\PathfinderSimpleAlgoTest::class
     ];
 
     /**

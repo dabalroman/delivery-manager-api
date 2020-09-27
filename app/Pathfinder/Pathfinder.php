@@ -8,33 +8,66 @@ use App\Route;
 
 class Pathfinder
 {
-    private int $batchId;
-
     /**
-     * Pathfinder constructor.
+     * Find route by simple pathfinding
      *
-     * @param $batchId
+     * @param int[] $addressesIds  Addresses ids in queried route
+     * @param int[] $ignoredRoutes Routes ids that should be ignored during pathfinding
+     * @return int[]
      */
-    public function __construct($batchId)
+    public static function simpleRoute(array $addressesIds, $ignoredRoutes = []): array
     {
-        $this->batchId = $batchId;
+        $routes = Route::whereNotIn('id', $ignoredRoutes)
+            ->get()
+            ->map(function (Route $route) {
+                return explode(',', $route->addresses_ids);
+            })
+            ->toArray();
+
+        self::statisticalPathfinding($routes, $addressesIds);
+
+        return $addressesIds;
     }
 
     /**
-     * Create route without without any optimizations
-     *
-     * @param int[] $addressesIds
-     * @return Route
+     * @param int[][] $routes
+     * @param int[]   $query
      */
-    public function simpleRoute(array $addressesIds): Route
+    private static function statisticalPathfinding(array $routes, array &$query)
     {
-        $route = new Route();
+        //Create distance map
+        $distanceMap = [];
+        foreach ($routes as $route) {
+            foreach ($route as $key => $id) {
+                if (!isset($distanceMap[$id])) {
+                    $distanceMap[$id] = [
+                        'distance' => ($key / count($route)),
+                        'amount' => 1
+                    ];
+                } else {
+                    $distanceMap[$id]['distance'] += $key / count($route);
+                    $distanceMap[$id]['amount']++;
+                }
+            }
+        }
 
-        $route->batch_id = $this->batchId;
-        $route->addresses_ids = join(',', $addressesIds);
-        $route->id_hash = Route::createIdHash($addressesIds);
-        $route->routed_hash = Route::createRoutedHash($addressesIds);
+        $distanceMap = array_map(function ($record) {
+            return $record['distance'] / $record['amount'];
+        }, $distanceMap);
 
-        return $route;
+        //Sort query by distance map
+        usort($query, function ($a, $b) use ($distanceMap) {
+            if (isset($distanceMap[$a]) && isset($distanceMap[$b])) {
+                return ($distanceMap[$a] <= $distanceMap[$b]) ? -1 : 1;
+            } else {
+                if (isset($distanceMap[$a])) {
+                    return -1;
+                } else if (isset($distanceMap[$b])) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
     }
 }

@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\DB;
  * @method findOrNew($route_id)
  * @method find($routeID)
  * @method where(string $string, $id)
+ * @method static whereNotIn(string $string, int[] $ignoredRoutes)
  * @mixin Eloquent
  */
 class Route extends Model
