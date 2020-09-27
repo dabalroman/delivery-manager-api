@@ -18,6 +18,7 @@ class Pathfinder
     public static function simpleRoute(array $addressesIds, $ignoredRoutes = []): array
     {
         $routes = Route::whereNotIn('id', $ignoredRoutes)
+            ->orderBy('updated_at', 'DESC')
             ->get()
             ->map(function (Route $route) {
                 return explode(',', $route->addresses_ids);
@@ -30,8 +31,8 @@ class Pathfinder
     }
 
     /**
-     * @param int[][] $routes
-     * @param int[]   $query
+     * @param int[][] $routes Routes as arrays of ids
+     * @param int[]   $query  Addresses ids in queried route
      */
     private static function statisticalPathfinding(array $routes, array &$query)
     {
