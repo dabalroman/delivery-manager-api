@@ -11,12 +11,11 @@ class PathfinderAlgoTestField extends Command
     public function handle()
     {
         $routes = [
-            ['G', 'H', 'D', 'E', 'C', 'A'],
-            ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-            ['A', 'B', 'F', 'C', 'D', 'G']
+            [52, 63, 61, 62, 36, 24, 23, 22, 47, 12, 37, 35, 39, 21, 11, 31, 15, 10, 13, 7, 8, 9, 18, 38, 32, 58, 16, 50, 51, 34, 43, 65, 66, 69, 67, 68, 64, 4, 5, 1, 14, 3, 57, 30, 6, 33, 60, 49, 46, 54, 56, 40, 41, 44, 59, 19, 2, 17, 42, 29, 26, 53, 25, 27, 28, 20, 45, 48, 55],
+            [52, 63, 61, 62, 70, 36, 24, 23, 47, 22, 86, 35, 39, 89, 73, 31, 74, 15, 10, 13, 8, 81, 7, 75, 18, 38, 83, 32, 79, 80, 58, 16, 50, 51, 34, 66, 69, 91, 71, 4, 1, 72, 14, 87, 57, 6, 33, 60, 88, 54, 82, 85, 41, 44, 59, 76, 42, 2, 17, 29, 53, 25, 78, 27, 28, 84, 90, 77, 20, 45, 55]
         ];
 
-        $query = ['C', 'E', 'F', 'B', 'H', 'X'];
+        $query = [1, 2, 70, 4, 71, 72, 73, 6, 7, 8, 13, 14, 15, 92, 74, 16, 17, 75, 20, 22, 24, 77, 25, 78, 27, 28, 29, 30, 79, 80, 32, 34, 81, 82, 35, 36, 83, 38, 39, 41, 42, 84, 44, 86, 47, 87, 93, 50, 51, 94, 88, 52, 53, 54, 55, 57, 58, 89, 90, 59, 60, 61, 63, 91, 66, 67, 69];
 
         $routes = array_map(function ($route) {
             return [
@@ -97,7 +96,7 @@ class PathfinderAlgoTestField extends Command
             if (count($bit['ids']) === 0) {
                 unset($bits[$key]);
             } else {
-                $bits[$key] = $bit['ids'];
+                $bits[$key] = array_values($bit['ids']);
             }
         }
         unset($key, $bit);
@@ -139,7 +138,7 @@ class PathfinderAlgoTestField extends Command
         }
         unset($baseId);
 
-        print_r($bits);
+//        print_r($bits);
 
         $bitsBondsArray = [];
         //Create square array with bits bonds
@@ -168,7 +167,7 @@ class PathfinderAlgoTestField extends Command
             }
         }
 
-//        print_r($bitsBondsArray);
+        print_r($bitsBondsArray);
 
         //Arrange and merge bits into route
         $routeParts = [];
@@ -195,11 +194,36 @@ class PathfinderAlgoTestField extends Command
 
             if ($aPart === false && $bPart === false) {
                 array_push($routeParts, $maxAIndex, $maxBIndex);
+                echo "PUSH BOTH END\n";
+                unset($bitsBondsArray[$maxAIndex], $bitsBondsArray[$maxBIndex]);
             } else if ($bPart === 0) {
                 array_unshift($routeParts, $maxAIndex);
+                echo "PUSH $maxAIndex TO START\n";
+                unset($bitsBondsArray[$maxAIndex]);
             } else if ($aPart === count($routeParts) - 1) {
                 array_push($routeParts, $maxBIndex);
+                echo "PUSH $maxBIndex TO END\n";
+                unset($bitsBondsArray[$maxBIndex]);
+            } else if ($aPart !== false && $bPart == false) {
+                echo "PUSH $maxBIndex AFTER $maxAIndex\n";
+                array_splice($routeParts, $aPart + 1, 0, $maxBIndex);
+                unset($bitsBondsArray[$maxBIndex]);
+            } else if ($bPart !== false && $aPart == false) {
+                echo "PUSH $maxAIndex BEFORE $maxBIndex\n";
+                array_splice($routeParts, $bPart, 0, $maxAIndex);
+                unset($bitsBondsArray[$maxAIndex]);
+            } else {
+                array_push($routeParts, $maxBIndex);
+                echo "PUSH IDK\n";
+                unset($bitsBondsArray[$maxBIndex]);
             }
+
+            echo join(',', array_reduce(array_map(function ($part) use ($bits) {
+                    return $bits[$part];
+                }, $routeParts), function ($accumulator, $current) {
+                    array_push($accumulator, ...$current);
+                    return $accumulator;
+                }, [])) . "\n\n";
 
             unset($bitsBondsArray[$maxAIndex], $bitsBondsArray[$maxBIndex]);
         }
