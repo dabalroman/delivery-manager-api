@@ -100,20 +100,22 @@ class PathfinderAlgoTestField extends Command
                 $bits[$key] = $bit['ids'];
             }
         }
-        unset($key);
-        unset($bit);
+        unset($key, $bit);
 
-        //Create square array with bounds between ids
-        $boundsArray = [];
+        //Create new, constant array keys
+        $bits = array_values($bits);
+
+        //Create square array with bonds between ids
+        $bondsArray = [];
         foreach ($query as $baseId) {
-            $boundsArray[$baseId] = [];
+            $bondsArray[$baseId] = [];
 
             foreach ($query as $afterId) {
                 $matches = 0;
-                $boundStrength = 0;
+                $bondStrength = 0;
 
                 if ($baseId == $afterId) {
-                    $boundsArray[$baseId][$afterId] = null;
+                    $bondsArray[$baseId][$afterId] = null;
                     continue;
                 }
 
@@ -125,24 +127,99 @@ class PathfinderAlgoTestField extends Command
                     if ($baseIdPos === false || $baseIdPos >= $afterIdPos) continue;
 
                     $matches++;
-                    $boundStrength += $afterIdPos - $baseIdPos;
+                    $bondStrength += $afterIdPos - $baseIdPos;
                 }
                 unset($route);
 
-                echo "$baseId$afterId $matches, $boundStrength\n";
-
-                $boundsArray[$baseId][$afterId] = ($matches > 0 && $boundStrength > 0)
-                    ? 1 / ($boundStrength / $matches)
+                $bondsArray[$baseId][$afterId] = ($matches > 0 && $bondStrength > 0)
+                    ? 1 / ($bondStrength / $matches)
                     : 0;
             }
             unset($afterId);
         }
         unset($baseId);
 
-        print_r($boundsArray);
-
         print_r($bits);
 
-//        print_r($routes);
+        $bitsBondsArray = [];
+        //Create square array with bits bonds
+        for ($bitAIndex = 0; $bitAIndex < count($bits); $bitAIndex++) {
+            for ($bitBIndex = 0; $bitBIndex < count($bits); $bitBIndex++) {
+                if ($bitAIndex == $bitBIndex) {
+                    $bitsBondsArray[$bitAIndex][$bitBIndex] = null;
+                    continue;
+                }
+
+                $matches = 0;
+                $bondStrength = 1;
+
+                for ($idA = 0; $idA < count($bits[$bitAIndex]); $idA++) {
+                    for ($idB = 0; $idB < count($bits[$bitBIndex]); $idB++) {
+                        $strength = $bondsArray[$bits[$bitAIndex][$idA]][$bits[$bitBIndex][$idB]];
+
+                        if ($strength > 0) {
+                            $matches++;
+                            $bondStrength *= $strength;
+                        }
+                    }
+                }
+
+                $bitsBondsArray[$bitAIndex][$bitBIndex] = $matches * $bondStrength;
+            }
+        }
+
+//        print_r($bitsBondsArray);
+
+        //Arrange and merge bits into route
+        $routeParts = [];
+        while (count($bitsBondsArray)) {
+            //Find max bitsBound
+            $maxAIndex = 0;
+            $maxBIndex = 0;
+            $maxBondStrength = 0;
+            foreach ($bitsBondsArray as $keyA => $bitBonds) {
+                foreach ($bitBonds as $keyB => $bondStrength) {
+                    if ($bondStrength > $maxBondStrength) {
+                        $maxBondStrength = $bondStrength;
+                        $maxAIndex = $keyA;
+                        $maxBIndex = $keyB;
+                    }
+                }
+            }
+
+            echo "$maxAIndex (" . join(',', $bits[$maxAIndex]) . ")"
+                . " <-> $maxBIndex (" . join(',', $bits[$maxBIndex]) . ")\n";
+
+            $aPart = array_search($maxAIndex, $routeParts);
+            $bPart = array_search($maxBIndex, $routeParts);
+
+            if ($aPart === false && $bPart === false) {
+                array_push($routeParts, $maxAIndex, $maxBIndex);
+            } else if ($bPart === 0) {
+                array_unshift($routeParts, $maxAIndex);
+            } else if ($aPart === count($routeParts) - 1) {
+                array_push($routeParts, $maxBIndex);
+            }
+
+            unset($bitsBondsArray[$maxAIndex], $bitsBondsArray[$maxBIndex]);
+        }
+
+        //Flatten routeParts array
+        $arrangedRoute = array_map(function ($part) use ($bits) {
+            return $bits[$part];
+        }, $routeParts);
+        $arrangedRoute = array_reduce($arrangedRoute, function ($accumulator, $current) {
+            array_push($accumulator, ...$current);
+            return $accumulator;
+        }, []);
+
+        //Add missing keys
+        foreach ($query as $id) {
+            if (!in_array($id, $arrangedRoute)) {
+                array_push($arrangedRoute, $id);
+            }
+        }
+
+        echo 'Route: ' . join(',', $arrangedRoute) . "\n";
     }
 }
