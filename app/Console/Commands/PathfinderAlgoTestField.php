@@ -16,7 +16,7 @@ class PathfinderAlgoTestField extends Command
             ['A', 'B', 'F', 'C', 'D', 'G']
         ];
 
-        $query = ['C', 'E', 'F', 'B', 'H'];
+        $query = ['C', 'E', 'F', 'B', 'H', 'X'];
 
         $routes = array_map(function ($route) {
             return [
@@ -60,10 +60,11 @@ class PathfinderAlgoTestField extends Command
                 array_push($route['bits'], $tempBit);
             }
         }
+        unset($route);
 
         //Create array with matched bit groups and calculate their value index
         $bits = [];
-        foreach ($routes as &$route) {
+        foreach ($routes as $route) {
             foreach ($route['bits'] as $bit) {
                 array_push($bits, [
                     'ids' => $bit,
@@ -71,6 +72,7 @@ class PathfinderAlgoTestField extends Command
                 ]);
             }
         }
+        unset($route);
 
         //Sort by value index
         usort($bits, function ($a, $b) {
@@ -98,6 +100,46 @@ class PathfinderAlgoTestField extends Command
                 $bits[$key] = $bit['ids'];
             }
         }
+        unset($key);
+        unset($bit);
+
+        //Create square array with bounds between ids
+        $boundsArray = [];
+        foreach ($query as $baseId) {
+            $boundsArray[$baseId] = [];
+
+            foreach ($query as $afterId) {
+                $matches = 0;
+                $boundStrength = 0;
+
+                if ($baseId == $afterId) {
+                    $boundsArray[$baseId][$afterId] = null;
+                    continue;
+                }
+
+                foreach ($routes as $route) {
+                    $afterIdPos = array_search($afterId, $route['ids']);
+                    if ($afterIdPos === false) continue;
+
+                    $baseIdPos = array_search($baseId, $route['ids']);
+                    if ($baseIdPos === false || $baseIdPos >= $afterIdPos) continue;
+
+                    $matches++;
+                    $boundStrength += $afterIdPos - $baseIdPos;
+                }
+                unset($route);
+
+                echo "$baseId$afterId $matches, $boundStrength\n";
+
+                $boundsArray[$baseId][$afterId] = ($matches > 0 && $boundStrength > 0)
+                    ? 1 / ($boundStrength / $matches)
+                    : 0;
+            }
+            unset($afterId);
+        }
+        unset($baseId);
+
+        print_r($boundsArray);
 
         print_r($bits);
 
