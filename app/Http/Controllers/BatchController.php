@@ -84,6 +84,7 @@ class BatchController extends Controller
             $data['user_id'] = $userId;
             $data['batches'] = DB::table('import_batch')
                 ->select('id', 'delivery_date', 'new_addresses_amount', 'known_addresses_amount', 'orders_amount')
+                ->orderBy('delivery_date', 'DESC')
                 ->get();
 
         } catch (Exception $e) {
